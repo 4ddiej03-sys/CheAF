@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">CheAF</string>
+    <string name="title_activity_main">CheAF</string>
+    <string name="package_name">com.cheaf.app</string>
+    <string name="custom_url_scheme">com.cheaf.app</string>
+</resources>
