@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { searchOnlineRecipes } from "../utils/searchRecipes";
 
-const CUISINES = ["Any","Italian","Mexican","Chinese","Japanese","Indian","French","American","Thai","British","Greek","Spanish"];
+const CUISINES = ["Any","Italian","Mexican","Chinese","Japanese","Indian","Indonesian","French","American","Thai","British","Greek","Spanish","Filipino","Vietnamese","Korean"];
 const DIETS    = ["Any","Vegetarian","Vegan","Chicken","Beef","Seafood","Pasta","Dessert"];
 
 export default function OnlineRecipeSearch({ pantry = [], onSaveRecipe, onClose }) {

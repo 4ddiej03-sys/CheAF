@@ -208,7 +208,7 @@ export default function App() {
           <div>
             <h1 style={{ margin: 0, fontSize: 22 }}>🍳 Che AF</h1>
             <p style={{ margin: 0, fontSize: 12, color: "#718096" }}>
-              {syncing ? "☁️ Syncing…" : `☁️ Synced · ${user.email.split("@")[0]}`}
+              {syncing ? "☁️ Syncing…" : `Cook Like You Know · ☁️ ${user.email.split("@")[0]}`}
             </p>
           </div>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
