@@ -1,34 +1,39 @@
-// src/utils/pantryMatch.js
+// utils/pantryMatch.js
+// Fuzzy matching so "2 cloves garlic" matches pantry item "garlic"
 
-export function matchRecipes(recipes = [], pantry = []) {
-  const pantrySet = pantry.map(p => p.toLowerCase());
+export function getPantryNames(pantry) {
+  return pantry
+    .map(p => typeof p === "object" ? (p.name || "") : p)
+    .map(s => s.toLowerCase().trim())
+    .filter(Boolean);
+}
 
-  return recipes
-    .map(recipe => {
-      const ingredients = recipe.ingredients || [];
+export function ingredientInPantry(ingredient, pantryNames) {
+  const ing = ingredient.toLowerCase().trim();
+  return pantryNames.some(p => {
+    if (!p || p.length < 2) return false;
+    if (ing === p) return true;
+    // "garlic" inside "2 cloves garlic"
+    if (ing.includes(p)) return true;
+    // last word of ingredient: "garlic" from "minced garlic"
+    const lastWord = ing.split(" ").pop();
+    if (lastWord === p) return true;
+    // first word of pantry in ingredient
+    const firstWord = p.split(" ")[0];
+    if (firstWord.length > 2 && ing.includes(firstWord)) return true;
+    return false;
+  });
+}
 
-      const matched = [];
-      const missing = [];
+export function calcMatchPct(recipe, pantry) {
+  const ingredients = recipe.ingredients || [];
+  if (!ingredients.length) return 0;
+  const names = getPantryNames(pantry);
+  const matches = ingredients.filter(i => ingredientInPantry(i, names)).length;
+  return Math.round((matches / ingredients.length) * 100);
+}
 
-      ingredients.forEach(ing => {
-        const lower = ing.toLowerCase();
-        const hasIt = pantrySet.some(p => lower.includes(p));
-
-        if (hasIt) matched.push(ing);
-        else missing.push(ing);
-      });
-
-      const score = ingredients.length
-        ? matched.length / ingredients.length
-        : 0;
-
-      return {
-        ...recipe,
-        pantryScore: score,
-        matchedIngredients: matched,
-        missingIngredients: missing
-      };
-    })
-    .filter(r => r.pantryScore > 0)
-    .sort((a, b) => b.pantryScore - a.pantryScore);
+export function getMissingIngredients(recipe, pantry) {
+  const names = getPantryNames(pantry);
+  return (recipe.ingredients || []).filter(i => !ingredientInPantry(i, names));
 }
