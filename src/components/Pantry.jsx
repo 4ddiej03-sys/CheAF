@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PantryScanner from "./PantryScanner";
 
 const CATEGORIES = ["Protein", "Vegetable", "Carb", "Dairy", "Spice", "Other"];
 
@@ -10,6 +11,7 @@ export default function Pantry({ pantry, setPantry, suggestedRecipes = [], onCre
   const [editCategory, setEditCategory] = useState("Other");
   const [mealTitle, setMealTitle] = useState("");
   const [feedback, setFeedback] = useState("");
+  const [showScanner, setShowScanner] = useState(false);
 
   function showFeedback(msg) { setFeedback(msg); setTimeout(() => setFeedback(""), 2500); }
   const getName = i => i.name || i;
@@ -36,12 +38,16 @@ export default function Pantry({ pantry, setPantry, suggestedRecipes = [], onCre
   return (
     <div>
       <h2>🥫 Pantry</h2>
-      <p style={{ fontSize: 12, color: "#718096", marginTop: -8 }}>{pantry.length === 0 ? "No ingredients yet." : `${pantry.length} ingredient${pantry.length !== 1 ? "s" : ""}`}</p>
+      <p style={{ fontSize: 12, color: "#718096", marginTop: 4 }}>{pantry.length === 0 ? "No ingredients yet." : `${pantry.length} ingredient${pantry.length !== 1 ? "s" : ""}`}</p>
       <form onSubmit={addItem} style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
         <input value={inputValue} onChange={e => setInputValue(e.target.value)} placeholder="Add ingredient…" style={{ flex: 1, padding: 8, borderRadius: 8, border: "1px solid #e2e8f0", minWidth: 110, fontSize: 14 }} />
         <select value={category} onChange={e => setCategory(e.target.value)} style={{ padding: 8, borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 14 }}>
           {CATEGORIES.map(c => <option key={c}>{c}</option>)}
         </select>
+        <button type="button" onClick={() => setShowScanner(true)}
+          style={{ width: "100%", padding: 14, borderRadius: 12, border: "none", background: "#c4622d", color: "#fff", fontWeight: 700, fontSize: 15, cursor: "pointer", marginBottom: 10 }}>
+          📸 Scan Fridge or Pantry
+        </button>
         <button type="submit" style={{ padding: "8px 14px", borderRadius: 8, border: "none", background: "#3182ce", color: "#fff", fontWeight: 600, cursor: "pointer" }}>+ Add</button>
       </form>
       {feedback && <p style={{ fontSize: 13, color: "#3182ce", marginBottom: 8 }}>{feedback}</p>}
@@ -90,6 +96,12 @@ export default function Pantry({ pantry, setPantry, suggestedRecipes = [], onCre
           ))}
         </>
       )}
+      {showScanner && (
+        <PantryScanner
+          onAddIngredients={items => setPantry([...pantry, ...items])}
+          onClose={() => setShowScanner(false)}
+  />
+)}
     </div>
   );
 }
