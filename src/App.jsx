@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { supabase, loadUserData, saveUserData, signOut, getUser } from "./utils/supabase";
+import { supabase, loadUserData, saveUserData, signOut } from "./utils/supabase";
+import { useVoiceNavigation, speak } from "./utils/useVoiceNavigation";
 import defaultRecipes from "./data/recipes.json";
 import NewRecipeModal from "./components/NewRecipeModal";
 import ImportRecipeModal from "./components/ImportRecipeModal";
@@ -12,8 +13,18 @@ import Pantry from "./components/Pantry";
 import CookingMode from "./components/CookingMode";
 import OnlineRecipeSearch from "./components/OnlineRecipeSearch";
 import AuthScreen from "./components/AuthScreen";
+import SettingsScreen from "./components/SettingsScreen";
+import VoiceButton from "./components/VoiceButton";
 import { generateAIRecipe } from "./utils/aiRecipe";
 import { calcMatchPct, getMissingIngredients } from "./utils/pantryMatch";
+
+const DEFAULT_SETTINGS = {
+  voiceEnabled:  false,
+  voiceCooking:  false,
+  largeText:     false,
+  highContrast:  false,
+  darkMode:      false,
+};
 
 export default function App() {
   const [user, setUser]                             = useState(null);
@@ -29,12 +40,35 @@ export default function App() {
   const [showNewRecipe, setShowNewRecipe]           = useState(false);
   const [showImport, setShowImport]                 = useState(false);
   const [showOnlineSearch, setShowOnlineSearch]     = useState(false);
+  const [showScanner, setShowScanner]               = useState(false);
   const [aiOptions, setAiOptions]                   = useState(null);
   const [aiLoading, setAiLoading]                   = useState(false);
   const [toast, setToast]                           = useState("");
   const [syncing, setSyncing]                       = useState(false);
+  const [settings, setSettings]                     = useState(DEFAULT_SETTINGS);
 
   function showToast(msg) { setToast(msg); setTimeout(() => setToast(""), 3000); }
+
+  // ── Apply accessibility settings globally ───────────────────────
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.fontSize    = settings.largeText    ? "18px"    : "16px";
+    root.style.filter      = settings.highContrast ? "contrast(1.4)" : "";
+    root.style.background  = settings.darkMode     ? "#1a1a1a" : "";
+  }, [settings]);
+
+  // ── Load settings from localStorage ────────────────────────────
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("cheaf_settings");
+      if (saved) setSettings(JSON.parse(saved));
+    } catch {}
+  }, []);
+
+  function updateSettings(next) {
+    setSettings(next);
+    try { localStorage.setItem("cheaf_settings", JSON.stringify(next)); } catch {}
+  }
 
   // ── Auth listener ───────────────────────────────────────────────
   useEffect(() => {
@@ -60,11 +94,7 @@ export default function App() {
           setShoppingList(data.shopping_list || []);
           setPantry(data.pantry || []);
         } else {
-          // First time user — load defaults
           setRecipes(defaultRecipes);
-          setFavorites([]);
-          setShoppingList([]);
-          setPantry([]);
         }
       } catch (err) {
         console.error("Load error:", err);
@@ -74,7 +104,7 @@ export default function App() {
     load();
   }, [user]);
 
-  // ── Save to Supabase whenever data changes ──────────────────────
+  // ── Save to Supabase ────────────────────────────────────────────
   const syncData = useCallback(async (newRecipes, newFavorites, newShopping, newPantry) => {
     if (!user) return;
     setSyncing(true);
@@ -85,9 +115,7 @@ export default function App() {
         shopping_list: newShopping,
         pantry: newPantry,
       });
-    } catch (err) {
-      console.error("Sync error:", err);
-    }
+    } catch (err) { console.error("Sync error:", err); }
     setSyncing(false);
   }, [user]);
 
@@ -126,6 +154,7 @@ export default function App() {
     setCookingRecipe(recipe);
     setStepIndex(0);
     setCheckedIngredients([]);
+    if (settings.voiceCooking) speak(`Starting ${recipe.title}. Let's cook!`);
   }
 
   function cookBestPantryRecipe() {
@@ -177,64 +206,80 @@ export default function App() {
 
   async function handleSignOut() {
     await signOut();
-    setRecipes([]);
-    setFavorites([]);
-    setShoppingList([]);
-    setPantry([]);
+    setRecipes([]); setFavorites([]); setShoppingList([]); setPantry([]);
     setTab("recipes");
   }
 
-  // ── Loading screen ───────────────────────────────────────────────
+  // ── Voice navigation ────────────────────────────────────────────
+  const { startListening } = useVoiceNavigation({
+    enabled: settings.voiceEnabled,
+    onNavigate: (t) => { setTab(t); },
+    onAddPantryItem: (name) => {
+      const item = { name: name.toLowerCase().trim(), category: "Other" };
+      updatePantry([...pantry, item]);
+    },
+    onScanFridge:     () => { setTab("pantry"); setShowScanner(true); },
+    onGenerateRecipe: generateRecipeFromPantry,
+    onSearchOnline:   () => setShowOnlineSearch(true),
+    onCookBestMatch:  cookBestPantryRecipe,
+    onImportURL:      () => setShowImport(true),
+    recipes,
+    onCookRecipe:     cookRecipe,
+  });
+
+  // ── Dark mode wrapper ───────────────────────────────────────────
+  const appBg    = settings.darkMode ? "#1a1a1a" : "#faf6ef";
+  const appColor = settings.darkMode ? "#f0f0f0" : "#1a202c";
+
+  // ── Loading ─────────────────────────────────────────────────────
   if (authLoading) return (
-    <div style={{ minHeight: "100vh", background: "#faf6ef", display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <div style={{ minHeight: "100vh", background: "#000", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{ textAlign: "center" }}>
-        <div style={{ fontSize: 48, marginBottom: 12 }}>🍳</div>
-        <div style={{ width: 36, height: 36, border: "3px solid #e2e8f0", borderTopColor: "#c4622d", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto" }} />
+        <img src="/icon-192.png" alt="Che AF" style={{ width: 80, height: 80, borderRadius: 16, marginBottom: 16 }} />
+        <div style={{ width: 36, height: 36, border: "3px solid #333", borderTopColor: "#c4622d", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto" }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     </div>
   );
 
-  // ── Auth screen ──────────────────────────────────────────────────
   if (!user) return <AuthScreen onAuth={() => {}} />;
 
-  // ── Main app ─────────────────────────────────────────────────────
   return (
-    <div style={{ paddingBottom: 90, fontFamily: "system-ui, sans-serif", background: "#faf6ef", minHeight: "100vh" }}>
+    <div style={{ paddingBottom: 90, fontFamily: "system-ui, sans-serif", background: appBg, color: appColor, minHeight: "100vh" }}>
       <div style={{ maxWidth: 480, margin: "0 auto", padding: 16 }}>
 
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-          <div>
-            <h1 style={{ margin: 0, fontSize: 22 }}>🍳 Che AF</h1>
-            <p style={{ margin: 0, fontSize: 12, color: "#718096" }}>
-              {syncing ? "☁️ Syncing…" : `Cook Like You Know · ☁️ ${user.email.split("@")[0]}`}
-            </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <img src="/icon-192.png" alt="Che AF" style={{ width: 36, height: 36, borderRadius: 8 }} />
+            <div>
+              <h1 style={{ margin: 0, fontSize: 22, color: appColor }}>Che AF</h1>
+              <p style={{ margin: 0, fontSize: 12, color: "#718096" }}>
+                {syncing ? "☁️ Syncing…" : `Cook Like You Know · ☁️ ${user.email.split("@")[0]}`}
+              </p>
+            </div>
           </div>
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            {aiLoading && <span style={{ fontSize: 13, color: "#805ad5" }}>🤖 Thinking…</span>}
-            <button type="button" onClick={handleSignOut}
-              style={{ background: "#f7fafc", border: "1px solid #e2e8f0", borderRadius: 8, padding: "6px 12px", fontSize: 12, cursor: "pointer", color: "#718096", fontWeight: 600 }}>
-              Sign out
-            </button>
-          </div>
+          {aiLoading && <span style={{ fontSize: 13, color: "#805ad5" }}>🤖 Thinking…</span>}
         </div>
 
+        {/* Tabs */}
         {tab === "recipes" && (
           <>
             <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-              <button type="button" onClick={() => setShowNewRecipe(true)} style={btn("#3182ce")}>➕ New Recipe</button>
-              <button type="button" onClick={() => setShowImport(true)} style={btn("#2c7a7b")}>🔗 Import URL</button>
+              <button type="button" onClick={() => setShowNewRecipe(true)} style={btn("#3182ce")}>➕ New</button>
+              <button type="button" onClick={() => setShowImport(true)} style={btn("#2c7a7b")}>🔗 Import</button>
             </div>
             <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-              <button type="button" onClick={generateRecipeFromPantry} disabled={aiLoading} style={btn(aiLoading ? "#9f7aea" : "#6b46c1")}>🤖 AI Generate</button>
+              <button type="button" onClick={generateRecipeFromPantry} disabled={aiLoading} style={btn(aiLoading ? "#9f7aea" : "#6b46c1")}>🤖 AI</button>
               <button type="button" onClick={cookBestPantryRecipe} style={btn("#c4622d")}>🍳 Best Match</button>
               <button type="button" onClick={() => setShowOnlineSearch(true)} style={btn("#38a169")}>🌐 Online</button>
             </div>
             <RecipeList recipes={recipes} pantry={pantry} favorites={favorites}
+              userId={user?.id}
               onUpdateFavorites={updateFavorites} onAddIngredients={addToShoppingList}
               onDeleteRecipe={id => updateRecipes(recipes.filter(r => r.id !== id))}
-              onCookRecipe={cookRecipe} />
+              onCookRecipe={cookRecipe}
+              onUpdateRecipe={r => updateRecipes(recipes.map(x => x.id === r.id ? r : x))} />
           </>
         )}
 
@@ -250,24 +295,38 @@ export default function App() {
             suggestedRecipes={getSuggestedRecipes()}
             onCreateMeal={createMealFromPantry}
             onAddToShoppingList={addToShoppingList}
-            onGenerateAIRecipe={generateRecipeFromPantry} />
+            onGenerateAIRecipe={generateRecipeFromPantry}
+            externalShowScanner={showScanner}
+            onScannerClose={() => setShowScanner(false)} />
         )}
 
         {tab === "shopping" && (
           <ShoppingList items={shoppingList} setItems={updateShoppingList} />
         )}
+
+        {tab === "settings" && (
+          <SettingsScreen
+            user={user}
+            settings={settings}
+            onUpdateSettings={updateSettings}
+            onSignOut={handleSignOut} />
+        )}
       </div>
 
       <CookingMode recipe={cookingRecipe} stepIndex={stepIndex} setStepIndex={setStepIndex}
         checkedIngredients={checkedIngredients} setCheckedIngredients={setCheckedIngredients}
-        pantry={pantry} onExit={() => setCookingRecipe(null)} />
+        pantry={pantry} onExit={() => setCookingRecipe(null)}
+        voiceCooking={settings.voiceCooking} />
 
-      {showNewRecipe  && <NewRecipeModal onClose={() => setShowNewRecipe(false)} onSave={r => { handleSaveRecipe(r); setShowNewRecipe(false); }} />}
-      {showImport     && <ImportRecipeModal onClose={() => setShowImport(false)} onSave={r => { handleSaveRecipe(r); setShowImport(false); }} />}
+      {showNewRecipe    && <NewRecipeModal onClose={() => setShowNewRecipe(false)} onSave={r => { handleSaveRecipe(r); setShowNewRecipe(false); }} />}
+      {showImport       && <ImportRecipeModal onClose={() => setShowImport(false)} onSave={r => { handleSaveRecipe(r); setShowImport(false); }} />}
       {showOnlineSearch && <OnlineRecipeSearch pantry={pantry} onSaveRecipe={handleSaveRecipe} onClose={() => setShowOnlineSearch(false)} />}
-      {aiOptions      && <RecipePicker recipes={aiOptions} onPick={r => { setAiOptions(null); handleSaveRecipe(r); }} onClose={() => setAiOptions(null)} />}
+      {aiOptions        && <RecipePicker recipes={aiOptions} onPick={r => { setAiOptions(null); handleSaveRecipe(r); }} onClose={() => setAiOptions(null)} />}
 
       <BottomNav tab={tab} setTab={setTab} />
+
+      {/* Floating voice button */}
+      <VoiceButton enabled={settings.voiceEnabled} onPress={startListening} />
 
       {toast && (
         <div style={{ position: "fixed", bottom: 80, left: "50%", transform: "translateX(-50%)", background: "#1a202c", color: "#fff", padding: "10px 20px", borderRadius: 50, fontSize: 13, whiteSpace: "nowrap", boxShadow: "0 4px 20px rgba(0,0,0,0.3)", zIndex: 9998 }}>
