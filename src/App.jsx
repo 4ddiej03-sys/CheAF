@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import recipesData from "./data/recipes.json";
+import { useState, useEffect, useCallback } from "react";
+import { supabase, loadUserData, saveUserData, signOut, getUser } from "./utils/supabase";
+import defaultRecipes from "./data/recipes.json";
 import NewRecipeModal from "./components/NewRecipeModal";
 import ImportRecipeModal from "./components/ImportRecipeModal";
 import RecipeList from "./components/RecipeList";
@@ -10,15 +11,13 @@ import BottomNav from "./components/BottomNav";
 import Pantry from "./components/Pantry";
 import CookingMode from "./components/CookingMode";
 import OnlineRecipeSearch from "./components/OnlineRecipeSearch";
+import AuthScreen from "./components/AuthScreen";
 import { generateAIRecipe } from "./utils/aiRecipe";
 import { calcMatchPct, getMissingIngredients } from "./utils/pantryMatch";
 
-const Storage = {
-  get: (key) => { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } },
-  set: (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch(e) { console.warn(e); } },
-};
-
 export default function App() {
+  const [user, setUser]                             = useState(null);
+  const [authLoading, setAuthLoading]               = useState(true);
   const [tab, setTab]                               = useState("recipes");
   const [recipes, setRecipes]                       = useState([]);
   const [favorites, setFavorites]                   = useState([]);
@@ -33,48 +32,97 @@ export default function App() {
   const [aiOptions, setAiOptions]                   = useState(null);
   const [aiLoading, setAiLoading]                   = useState(false);
   const [toast, setToast]                           = useState("");
+  const [syncing, setSyncing]                       = useState(false);
 
   function showToast(msg) { setToast(msg); setTimeout(() => setToast(""), 3000); }
 
+  // ── Auth listener ───────────────────────────────────────────────
   useEffect(() => {
-    setRecipes(Storage.get("recipes")?.length ? Storage.get("recipes") : recipesData);
-    setFavorites(Storage.get("favorites") || []);
-    setShoppingList(Storage.get("shoppingList") || []);
-    setPantry(Storage.get("pantry") || []);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user || null);
+      setAuthLoading(false);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      setUser(session?.user || null);
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
-  useEffect(() => Storage.set("recipes", recipes),           [recipes]);
-  useEffect(() => Storage.set("favorites", favorites),       [favorites]);
-  useEffect(() => Storage.set("shoppingList", shoppingList), [shoppingList]);
-  useEffect(() => Storage.set("pantry", pantry),             [pantry]);
+  // ── Load data when user logs in ─────────────────────────────────
+  useEffect(() => {
+    if (!user) return;
+    async function load() {
+      try {
+        const data = await loadUserData(user.id);
+        if (data) {
+          setRecipes(data.recipes?.length ? data.recipes : defaultRecipes);
+          setFavorites(data.favorites || []);
+          setShoppingList(data.shopping_list || []);
+          setPantry(data.pantry || []);
+        } else {
+          // First time user — load defaults
+          setRecipes(defaultRecipes);
+          setFavorites([]);
+          setShoppingList([]);
+          setPantry([]);
+        }
+      } catch (err) {
+        console.error("Load error:", err);
+        setRecipes(defaultRecipes);
+      }
+    }
+    load();
+  }, [user]);
+
+  // ── Save to Supabase whenever data changes ──────────────────────
+  const syncData = useCallback(async (newRecipes, newFavorites, newShopping, newPantry) => {
+    if (!user) return;
+    setSyncing(true);
+    try {
+      await saveUserData(user.id, {
+        recipes: newRecipes,
+        favorites: newFavorites,
+        shopping_list: newShopping,
+        pantry: newPantry,
+      });
+    } catch (err) {
+      console.error("Sync error:", err);
+    }
+    setSyncing(false);
+  }, [user]);
+
+  function updateRecipes(val)      { setRecipes(val);      syncData(val, favorites, shoppingList, pantry); }
+  function updateFavorites(val)    { setFavorites(val);    syncData(recipes, val, shoppingList, pantry); }
+  function updateShoppingList(val) { setShoppingList(val); syncData(recipes, favorites, val, pantry); }
+  function updatePantry(val)       { setPantry(val);       syncData(recipes, favorites, shoppingList, val); }
 
   function addToShoppingList(items) {
     if (!Array.isArray(items)) return;
-    setShoppingList(prev => {
-      const existing = prev.map(i => i.toLowerCase());
-      const next = [...prev];
-      items.forEach(item => {
-        const name = typeof item === "object" ? item.name : item;
-        if (name && !existing.includes(name.toLowerCase())) next.push(name);
-      });
-      return next;
+    const next = [...shoppingList];
+    const existing = shoppingList.map(i => i.toLowerCase());
+    items.forEach(item => {
+      const name = typeof item === "object" ? item.name : item;
+      if (name && !existing.includes(name.toLowerCase())) next.push(name);
     });
+    updateShoppingList(next);
   }
 
   function handleSaveRecipe(recipe) {
-    setRecipes(prev => prev.find(r => r.id === recipe.id) ? prev : [recipe, ...prev]);
+    const next = recipes.find(r => r.id === recipe.id) ? recipes : [recipe, ...recipes];
+    updateRecipes(next);
     setTab("recipes");
     showToast(`"${recipe.title}" saved! 🎉`);
   }
 
   function cookRecipe(recipe) {
     addToShoppingList(getMissingIngredients(recipe, pantry));
-    setPantry(prev => prev.filter(p => {
+    const nextPantry = pantry.filter(p => {
       const pName = (typeof p === "object" ? p.name : p).toLowerCase();
       return !(recipe.ingredients || []).some(i =>
         i.toLowerCase().includes(pName) || pName.includes(i.toLowerCase().split(" ").pop())
       );
-    }));
+    });
+    updatePantry(nextPantry);
     setCookingRecipe(recipe);
     setStepIndex(0);
     setCheckedIngredients([]);
@@ -82,9 +130,7 @@ export default function App() {
 
   function cookBestPantryRecipe() {
     if (!pantry.length || !recipes.length) { showToast("Add pantry items first 🫙"); return; }
-    const best = recipes
-      .map(r => ({ ...r, pct: calcMatchPct(r, pantry) }))
-      .sort((a, b) => b.pct - a.pct)[0];
+    const best = recipes.map(r => ({ ...r, pct: calcMatchPct(r, pantry) })).sort((a, b) => b.pct - a.pct)[0];
     if (!best || best.pct === 0) { showToast("No matches — try 🌐 Search Online!"); return; }
     showToast(`Best match: ${best.title} (${best.pct}% match) 🍳`);
     cookRecipe(best);
@@ -96,30 +142,13 @@ export default function App() {
     showToast("🤖 Generating 3 recipe options…");
     try {
       const options = await generateAIRecipe(pantry);
-      if (options.length === 1) {
-        // Only one option — save directly
-        handleSaveRecipe(options[0]);
-      } else {
-        // Show picker
-        setAiOptions(options);
-      }
+      if (options.length === 1) { handleSaveRecipe(options[0]); }
+      else { setAiOptions(options); }
     } catch (err) {
       console.error(err);
-      showToast("AI failed — check your API key 🔑");
+      showToast("AI failed — try again 🔑");
     }
     setAiLoading(false);
-  }
-
-  function handlePickRecipe(recipe) {
-    setAiOptions(null);
-    handleSaveRecipe(recipe);
-  }
-
-  function getSuggestedRecipes() {
-    if (!pantry.length) return [];
-    return recipes
-      .map(r => ({ ...r, percent: calcMatchPct(r, pantry) }))
-      .sort((a, b) => b.percent - a.percent);
   }
 
   function generateSteps(ingredients) {
@@ -138,20 +167,57 @@ export default function App() {
     if (!pantry.length) return;
     const names = pantry.map(i => typeof i === "object" ? i.name : i);
     const title = customTitle.trim() || `Pantry Meal: ${names.slice(0, 2).join(" & ")}`;
-    setRecipes(prev => [{ id: crypto.randomUUID(), title, ingredients: names, steps: generateSteps(pantry), generated: true }, ...prev]);
-    setTab("recipes");
-    showToast(`"${title}" created!`);
+    handleSaveRecipe({ id: crypto.randomUUID(), title, ingredients: names, steps: generateSteps(pantry), generated: true });
   }
 
+  function getSuggestedRecipes() {
+    if (!pantry.length) return [];
+    return recipes.map(r => ({ ...r, percent: calcMatchPct(r, pantry) })).sort((a, b) => b.percent - a.percent);
+  }
+
+  async function handleSignOut() {
+    await signOut();
+    setRecipes([]);
+    setFavorites([]);
+    setShoppingList([]);
+    setPantry([]);
+    setTab("recipes");
+  }
+
+  // ── Loading screen ───────────────────────────────────────────────
+  if (authLoading) return (
+    <div style={{ minHeight: "100vh", background: "#faf6ef", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ textAlign: "center" }}>
+        <div style={{ fontSize: 48, marginBottom: 12 }}>🍳</div>
+        <div style={{ width: 36, height: 36, border: "3px solid #e2e8f0", borderTopColor: "#c4622d", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto" }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    </div>
+  );
+
+  // ── Auth screen ──────────────────────────────────────────────────
+  if (!user) return <AuthScreen onAuth={() => {}} />;
+
+  // ── Main app ─────────────────────────────────────────────────────
   return (
     <div style={{ paddingBottom: 90, fontFamily: "system-ui, sans-serif", background: "#faf6ef", minHeight: "100vh" }}>
       <div style={{ maxWidth: 480, margin: "0 auto", padding: 16 }}>
+
+        {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div>
             <h1 style={{ margin: 0, fontSize: 22 }}>🍳 Che AF</h1>
-            <p style={{ margin: 0, fontSize: 12, color: "#718096" }}>Cook Like You Know</p>
+            <p style={{ margin: 0, fontSize: 12, color: "#718096" }}>
+              {syncing ? "☁️ Syncing…" : `☁️ Synced · ${user.email.split("@")[0]}`}
+            </p>
           </div>
-          {aiLoading && <span style={{ fontSize: 13, color: "#805ad5" }}>🤖 Thinking…</span>}
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            {aiLoading && <span style={{ fontSize: 13, color: "#805ad5" }}>🤖 Thinking…</span>}
+            <button type="button" onClick={handleSignOut}
+              style={{ background: "#f7fafc", border: "1px solid #e2e8f0", borderRadius: 8, padding: "6px 12px", fontSize: 12, cursor: "pointer", color: "#718096", fontWeight: 600 }}>
+              Sign out
+            </button>
+          </div>
         </div>
 
         {tab === "recipes" && (
@@ -166,21 +232,21 @@ export default function App() {
               <button type="button" onClick={() => setShowOnlineSearch(true)} style={btn("#38a169")}>🌐 Online</button>
             </div>
             <RecipeList recipes={recipes} pantry={pantry} favorites={favorites}
-              onUpdateFavorites={setFavorites} onAddIngredients={addToShoppingList}
-              onDeleteRecipe={id => setRecipes(prev => prev.filter(r => r.id !== id))}
+              onUpdateFavorites={updateFavorites} onAddIngredients={addToShoppingList}
+              onDeleteRecipe={id => updateRecipes(recipes.filter(r => r.id !== id))}
               onCookRecipe={cookRecipe} />
           </>
         )}
 
         {tab === "favorites" && (
           <Favorites recipes={recipes} favorites={favorites} pantry={pantry}
-            onUpdateFavorites={setFavorites} onAddIngredients={addToShoppingList}
+            onUpdateFavorites={updateFavorites} onAddIngredients={addToShoppingList}
             onCookRecipe={cookRecipe}
-            onDeleteRecipe={id => setRecipes(prev => prev.filter(r => r.id !== id))} />
+            onDeleteRecipe={id => updateRecipes(recipes.filter(r => r.id !== id))} />
         )}
 
         {tab === "pantry" && (
-          <Pantry pantry={pantry} setPantry={setPantry}
+          <Pantry pantry={pantry} setPantry={updatePantry}
             suggestedRecipes={getSuggestedRecipes()}
             onCreateMeal={createMealFromPantry}
             onAddToShoppingList={addToShoppingList}
@@ -188,7 +254,7 @@ export default function App() {
         )}
 
         {tab === "shopping" && (
-          <ShoppingList items={shoppingList} setItems={setShoppingList} />
+          <ShoppingList items={shoppingList} setItems={updateShoppingList} />
         )}
       </div>
 
@@ -196,10 +262,10 @@ export default function App() {
         checkedIngredients={checkedIngredients} setCheckedIngredients={setCheckedIngredients}
         pantry={pantry} onExit={() => setCookingRecipe(null)} />
 
-      {showNewRecipe && <NewRecipeModal onClose={() => setShowNewRecipe(false)} onSave={r => { handleSaveRecipe(r); setShowNewRecipe(false); }} />}
-      {showImport    && <ImportRecipeModal onClose={() => setShowImport(false)} onSave={r => { handleSaveRecipe(r); setShowImport(false); }} />}
+      {showNewRecipe  && <NewRecipeModal onClose={() => setShowNewRecipe(false)} onSave={r => { handleSaveRecipe(r); setShowNewRecipe(false); }} />}
+      {showImport     && <ImportRecipeModal onClose={() => setShowImport(false)} onSave={r => { handleSaveRecipe(r); setShowImport(false); }} />}
       {showOnlineSearch && <OnlineRecipeSearch pantry={pantry} onSaveRecipe={handleSaveRecipe} onClose={() => setShowOnlineSearch(false)} />}
-      {aiOptions && <RecipePicker recipes={aiOptions} onPick={handlePickRecipe} onClose={() => setAiOptions(null)} />}
+      {aiOptions      && <RecipePicker recipes={aiOptions} onPick={r => { setAiOptions(null); handleSaveRecipe(r); }} onClose={() => setAiOptions(null)} />}
 
       <BottomNav tab={tab} setTab={setTab} />
 

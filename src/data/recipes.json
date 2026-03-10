@@ -1,59 +1,149 @@
 [
   {
-    "id": 1,
-    "title": "Gado Gado - Indonesian Peanut Salad",
-    "cost": "very cheap",
-    "ingredients": ["carrot", "egg", "cabbage", "tofu", "garlic",
-    "peanut butter", "sweet soy sauce"],
-    "steps": ["Crushed garlic and mixed with peanut butter",
-    "Add lime juice and sweeet soy sauce",
-    "Cook egg", "Add all chopped vegetables", "Season to taste"]
+    "id": "demo-1",
+    "title": "Spaghetti Carbonara",
+    "cuisine": "Italian",
+    "difficulty": "Medium",
+    "cookTime": "25 min",
+    "servings": 4,
+    "ingredients": [
+      "400g spaghetti",
+      "200g pancetta or guanciale",
+      "4 large eggs",
+      "100g Pecorino Romano cheese, finely grated",
+      "50g Parmesan cheese, finely grated",
+      "4 cloves garlic",
+      "2 tbsp olive oil",
+      "Salt and black pepper to taste"
+    ],
+    "steps": [
+      "Bring a large pot of salted water to boil and cook spaghetti until al dente. Reserve 1 cup pasta water before draining.",
+      "While pasta cooks, fry pancetta in olive oil over medium heat for 5–7 minutes until crispy. Add garlic for the last 2 minutes.",
+      "Whisk together eggs, Pecorino Romano and Parmesan in a bowl. Season generously with black pepper.",
+      "Remove pan from heat. Add drained pasta to the pancetta and toss well.",
+      "Pour egg mixture over pasta, tossing quickly and adding pasta water a splash at a time to create a silky sauce. The residual heat cooks the eggs — do not put back on heat or they will scramble.",
+      "Serve immediately topped with extra cheese and cracked black pepper."
+    ]
+  },
+  {
+    "id": "demo-2",
+    "title": "Chicken Tikka Masala",
+    "cuisine": "Indian",
+    "difficulty": "Challenging",
+    "cookTime": "50 min",
+    "servings": 4,
+    "ingredients": [
+      "700g chicken breast, cut into chunks",
+      "1 cup plain yoghurt",
+      "2 tbsp tikka masala spice blend",
+      "1 large onion, finely diced",
+      "4 cloves garlic, minced",
+      "2 tsp fresh ginger, grated",
+      "400g can crushed tomatoes",
+      "1 cup heavy cream",
+      "2 tbsp butter",
+      "1 tbsp garam masala",
+      "1 tsp cumin",
+      "1 tsp paprika",
+      "Salt to taste",
+      "Fresh coriander to garnish"
+    ],
+    "steps": [
+      "Marinate chicken in yoghurt and tikka masala spice for at least 30 minutes (overnight is better).",
+      "Grill or pan-fry marinated chicken on high heat until charred on the outside and cooked through, about 8–10 minutes. Set aside.",
+      "In the same pan, melt butter over medium heat and sauté onion for 8 minutes until golden brown.",
+      "Add garlic and ginger and cook for 2 minutes until fragrant.",
+      "Add garam masala, cumin and paprika. Stir for 1 minute to bloom the spices.",
+      "Pour in crushed tomatoes and simmer for 15 minutes, stirring occasionally.",
+      "Blend sauce until smooth using a stick blender. Return to pan.",
+      "Stir in cream and add cooked chicken. Simmer for 10 minutes.",
+      "Season with salt, garnish with fresh coriander and serve with basmati rice or naan."
+    ]
+  },
+  {
+    "id": "demo-3",
+    "title": "Beef Tacos with Mango Salsa",
+    "cuisine": "Mexican",
+    "difficulty": "Challenging",
+    "cookTime": "35 min",
+    "servings": 4,
+    "ingredients": [
+      "500g beef mince",
+      "8 small corn tortillas",
+      "1 tbsp cumin",
+      "1 tbsp smoked paprika",
+      "1 tsp chilli powder",
+      "1 tsp garlic powder",
+      "1 large mango, diced",
+      "1 red onion, finely diced",
+      "1 jalapeño, finely chopped",
+      "Juice of 2 limes",
+      "Fresh coriander, chopped",
+      "1 cup shredded cabbage",
+      "Sour cream to serve",
+      "Salt to taste"
+    ],
+    "steps": [
+      "Make mango salsa by combining mango, half the red onion, jalapeño, lime juice and coriander. Season with salt and set aside.",
+      "Brown beef mince in a hot pan over high heat, breaking up lumps, for 5–6 minutes.",
+      "Add cumin, smoked paprika, chilli powder and garlic powder. Stir well and cook 2 more minutes.",
+      "Add a splash of water and remaining red onion. Simmer for 5 minutes until sauce thickens.",
+      "Warm tortillas directly over a gas flame or in a dry pan for 30 seconds each side.",
+      "Assemble tacos: shredded cabbage first, then beef, then mango salsa and a dollop of sour cream.",
+      "Serve immediately with extra lime wedges."
+    ]
+  },
+  {
+    "id": "demo-4",
+    "title": "Pan-Seared Salmon with Lemon Butter",
+    "cuisine": "Mediterranean",
+    "difficulty": "Medium",
+    "cookTime": "20 min",
+    "servings": 2,
+    "ingredients": [
+      "2 salmon fillets, skin on",
+      "3 tbsp unsalted butter",
+      "4 cloves garlic, minced",
+      "Juice of 1 lemon",
+      "Zest of 1 lemon",
+      "2 tbsp olive oil",
+      "1 tsp smoked paprika",
+      "Fresh dill or parsley to garnish",
+      "Salt and black pepper to taste"
+    ],
+    "steps": [
+      "Pat salmon fillets completely dry with paper towel — this is key for a crispy skin. Season generously with salt, pepper and smoked paprika.",
+      "Heat olive oil in a heavy pan over high heat until almost smoking.",
+      "Place salmon skin-side down and press gently with a spatula for the first 30 seconds to prevent curling. Cook for 4 minutes without moving.",
+      "Flip salmon and cook for 2 more minutes. The salmon should be just cooked through — slightly translucent in the centre is perfect.",
+      "Reduce heat to medium. Add butter and garlic to the pan and baste salmon with the foaming butter for 1 minute.",
+      "Remove salmon. Add lemon juice and zest to the pan sauce and swirl.",
+      "Plate salmon, spoon lemon butter sauce over the top and garnish with fresh dill."
+    ]
+  },
+  {
+    "id": "demo-5",
+    "title": "Classic French Omelette",
+    "cuisine": "French",
+    "difficulty": "Challenging",
+    "cookTime": "10 min",
+    "servings": 1,
+    "ingredients": [
+      "3 large eggs",
+      "1 tbsp unsalted butter",
+      "2 tbsp crème fraîche",
+      "30g Gruyère cheese, grated",
+      "Fresh chives, finely chopped",
+      "Salt and white pepper to taste"
+    ],
+    "steps": [
+      "Crack eggs into a bowl and beat vigorously with a fork until completely combined — no streaks of white. Season with salt and white pepper.",
+      "Heat butter in a small non-stick pan over medium-high heat. When butter foams and just starts to subside, pour in eggs.",
+      "Immediately start stirring with a rubber spatula in fast circular motions while shaking the pan. Keep the eggs moving constantly.",
+      "When eggs are just barely set — still slightly wet on top — add crème fraîche and Gruyère down the centre.",
+      "Tilt the pan at 45 degrees and roll the omelette onto itself using the spatula.",
+      "Slide onto a warm plate — it should be pale yellow with no colour on the outside. A perfect French omelette has no browning.",
+      "Garnish with chives and serve immediately."
+    ]
   }
-  ,
-{
-  "id": 2,
-  "title": "$2 Peanut Butter Noodles",
-  "cost": "cheap",
-  "ingredients": [
-    "pasta",
-    "peanut butter",
-    "soy sauce",
-    "garlic"
-  ],
-  "steps": [
-    "Boil pasta",
-    "Crushed Garlic then mixed with peanut butter",
-    "Mix sauce",
-    "Combine"
-  ]
-}
-,
-{
-  "id": 3,
-  "title": "$2 Pistachio Ham Ramen",
-  "cost": "cheap",
-  "ingredients": [
-    "ramen noodle",
-    "ham",
-    "bok choy",
-    "red pepper",
-    "beef broth",
-    "sugar",
-    "soy sauce",
-    "pistachios",
-    "garlic"
-  ],
-  "steps": [
-    "Boil the bok choy in water with beef broth",
-    "Cook the noodles",
-    "Sauce: Mix soy sauce with sugar and crushed garlic. Add water if it's too salty",
-    "Cut the red pepper in strips or as desire",
-    "Cut the ham into bite size",
-    "Remove the bok choy and noodles from the stove once cooked, drain the water or keep the broth if you like your ramen soupy",
-    "Place the noodles and bok choy in a bowl, then pour the sauce on top",
-    "Add the red peppers, ham, and crushed pistachios on top of the noodles",
-    "Add rice vinegar before serving"
-  ]
-}
-
 ]
