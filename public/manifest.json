@@ -1,21 +1,24 @@
-{"name": "Che AF",
-  "short_name": "Che AF",
+{
+  "name": "Che AF",
+  "short_name": "CF",
+  "description": "Cook Like You Know — AI recipes from your pantry",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#805ad5",
-  "scope": "/",
+  "background_color": "#000000",
+  "theme_color": "#000000",
   "orientation": "portrait",
   "icons": [
     {
       "src": "/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
