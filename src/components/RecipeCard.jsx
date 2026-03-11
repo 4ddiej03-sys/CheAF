@@ -1,7 +1,9 @@
 import { useState, useRef } from "react";
 import { findSimilarRecipes } from "../utils/findSimilar";
 import { ingredientInPantry, getPantryNames, getMissingIngredients } from "../utils/pantryMatch";
-import { uploadRecipePhoto, supabase } from "../utils/supabase";
+import { uploadRecipePhoto } from "../utils/supabase";
+import ServingScaler from "./ServingScaler";
+import { scaleRecipe } from "../utils/scaleIngredients";
 
 const COMMON_SUBS = {
   "egg":         [{ item: "1 tbsp flax + 3 tbsp water", note: "let sit 5 min" }],
@@ -42,7 +44,7 @@ function SimilarModal({ recipe, pantry, onClose }) {
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 500, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
-      <div style={{ background: "#fff", borderRadius: "20px 20px 0 0", width: "100%", maxWidth: 480, maxHeight: "85vh", overflowY: "auto", padding: 20, boxShadow: "0 -8px 32px rgba(0,0,0,0.2)" }}>
+      <div style={{ background: "#fff", borderRadius: "20px 20px 0 0", width: "100%", maxWidth: 480, maxHeight: "85vh", overflowY: "auto", padding: 20 }}>
         <div style={{ width: 40, height: 4, background: "#e2e8f0", borderRadius: 2, margin: "0 auto 16px" }} />
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
           <div>
@@ -77,7 +79,7 @@ function SimilarModal({ recipe, pantry, onClose }) {
                       <p style={{ margin: "3px 0 0", fontSize: 12, color: "#718096" }}>{item.why}</p>
                     </div>
                     <a href={`https://www.google.com/search?q=${encodeURIComponent(item.searchQuery)}`} target="_blank" rel="noopener noreferrer"
-                      style={{ padding: "6px 10px", borderRadius: 8, background: "#fff", border: "1px solid #e2e8f0", fontSize: 12, fontWeight: 600, color: "#3182ce", textDecoration: "none", whiteSpace: "nowrap", flexShrink: 0 }}>
+                      style={{ padding: "6px 10px", borderRadius: 8, background: "#fff", border: "1px solid #e2e8f0", fontSize: 12, fontWeight: 600, color: "#3182ce", textDecoration: "none", whiteSpace: "nowrap" }}>
                       🔗 Find it
                     </a>
                   </div>
@@ -88,7 +90,7 @@ function SimilarModal({ recipe, pantry, onClose }) {
         })}
         {searched && !loading && (
           <button type="button" onClick={() => { setResults(null); setSearched(false); }}
-            style={{ width: "100%", padding: 10, borderRadius: 10, border: "1px solid #e2e8f0", background: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 13, marginTop: 4 }}>
+            style={{ width: "100%", padding: 10, borderRadius: 10, border: "1px solid #e2e8f0", background: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 13 }}>
             🔄 Search Again
           </button>
         )}
@@ -103,16 +105,20 @@ export default function RecipeCard({
   onUpdateFavorites = () => {}, onAddIngredients = () => {},
   onDeleteRecipe = () => {}, onCookRecipe = () => {}, onUpdateRecipe = () => {},
 }) {
-  const [expanded, setExpanded]       = useState(false);
-  const [deleted, setDeleted]         = useState(false);
-  const [showSimilar, setShowSimilar] = useState(false);
-  const [uploading, setUploading]     = useState(false);
-  const fileInputRef                  = useRef(null);
+  const [expanded, setExpanded]         = useState(false);
+  const [deleted, setDeleted]           = useState(false);
+  const [showSimilar, setShowSimilar]   = useState(false);
+  const [uploading, setUploading]       = useState(false);
+  const [scaledServings, setScaledServings] = useState(recipe.servings || 2);
+  const fileInputRef                    = useRef(null);
 
-  const ingredients = recipe.ingredients || [];
-  const pantryNames = getPantryNames(pantry);
-  const missing     = getMissingIngredients(recipe, pantry);
-  const matchPct    = ingredients.length
+  // Scale recipe based on current serving size
+  const displayRecipe  = scaleRecipe(recipe, scaledServings);
+  const ingredients    = displayRecipe.ingredients || [];
+  const pantryNames    = getPantryNames(pantry);
+  const missing        = getMissingIngredients(displayRecipe, pantry);
+  const originalMissing = getMissingIngredients(recipe, pantry);
+  const matchPct       = ingredients.length
     ? Math.round(((ingredients.length - missing.length) / ingredients.length) * 100)
     : 0;
   const isFav = favorites.includes(recipe.id);
@@ -140,56 +146,56 @@ export default function RecipeCard({
     <>
       <div style={{ border: "1px solid #e2e8f0", borderRadius: 12, marginBottom: 12, background: "#fff", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", overflow: "hidden" }}>
 
-        {/* Photo area */}
+        {/* Photo */}
         {photo ? (
           <div style={{ position: "relative" }}>
-            <img src={photo} alt={recipe.title}
-              style={{ width: "100%", height: 180, objectFit: "cover", display: "block" }} />
-            {/* Replace photo button */}
+            <img src={photo} alt={recipe.title} style={{ width: "100%", height: 180, objectFit: "cover", display: "block" }} />
             <button type="button" onClick={() => fileInputRef.current?.click()}
               style={{ position: "absolute", bottom: 8, right: 8, background: "rgba(0,0,0,0.6)", border: "none", borderRadius: 8, padding: "6px 10px", color: "#fff", fontSize: 12, cursor: "pointer", fontWeight: 600 }}>
               {uploading ? "Uploading…" : "📸 Change"}
             </button>
           </div>
         ) : (
-          /* No photo — show upload prompt */
           <button type="button" onClick={() => fileInputRef.current?.click()}
             style={{ width: "100%", padding: "14px 0", background: "#f7fafc", border: "none", borderBottom: "1px solid #e2e8f0", cursor: "pointer", color: "#a0aec0", fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
             {uploading ? "⏳ Uploading…" : "📸 Add your photo"}
           </button>
         )}
-
-        {/* Hidden file input */}
         <input ref={fileInputRef} type="file" accept="image/*" capture="environment"
           onChange={handlePhotoUpload} style={{ display: "none" }} />
 
         <div style={{ padding: 14 }}>
-          {/* Title + favourite */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          {/* Title row */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
             <div style={{ flex: 1 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6, flexWrap: "wrap" }}>
                 <h3 style={{ margin: 0, fontSize: 15 }}>{recipe.title}</h3>
                 {recipe.generated  && <span style={{ fontSize: 10, background: "#e9d8fd", color: "#6b46c1", padding: "2px 6px", borderRadius: 50, fontWeight: 700 }}>🤖 AI</span>}
                 {recipe.fromOnline && <span style={{ fontSize: 10, background: "#e6fffa", color: "#2c7a7b", padding: "2px 6px", borderRadius: 50, fontWeight: 700 }}>🌐 Online</span>}
                 {recipe.fromImport && <span style={{ fontSize: 10, background: "#ebf8ff", color: "#2b6cb0", padding: "2px 6px", borderRadius: 50, fontWeight: 700 }}>🔗 Imported</span>}
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <div style={{ height: 4, width: 80, background: "#e2e8f0", borderRadius: 2, overflow: "hidden" }}>
-                  <div style={{ height: "100%", width: `${matchPct}%`, borderRadius: 2, transition: "width 0.4s", background: matchPct === 100 ? "#38a169" : matchPct >= 50 ? "#d69e2e" : "#e53e3e" }} />
+
+              {/* Match bar + Serving scaler row */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <div style={{ height: 4, width: 60, background: "#e2e8f0", borderRadius: 2, overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: `${matchPct}%`, borderRadius: 2, background: matchPct === 100 ? "#38a169" : matchPct >= 50 ? "#d69e2e" : "#e53e3e" }} />
+                  </div>
+                  <span style={{ fontSize: 11, color: "#718096" }}>{matchPct}% {matchPct === 100 && "🎉"}</span>
                 </div>
-                <span style={{ fontSize: 11, color: "#718096" }}>{matchPct}% in pantry {matchPct === 100 && "🎉"}</span>
+                <ServingScaler servings={scaledServings} onChange={setScaledServings} />
               </div>
             </div>
             <button type="button"
               onClick={() => onUpdateFavorites(isFav ? favorites.filter(id => id !== recipe.id) : [...favorites, recipe.id])}
-              style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", padding: "0 4px" }}>
+              style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", padding: "0 4px", marginLeft: 8 }}>
               {isFav ? "❤️" : "🤍"}
             </button>
           </div>
 
           {/* Expand ingredients */}
           <button type="button" onClick={() => setExpanded(v => !v)}
-            style={{ background: "none", border: "none", color: "#3182ce", fontSize: 13, cursor: "pointer", padding: "6px 0" }}>
+            style={{ background: "none", border: "none", color: "#3182ce", fontSize: 13, cursor: "pointer", padding: "4px 0" }}>
             {expanded ? "▲ Hide" : "▼ Show"} ingredients ({ingredients.length})
           </button>
 
@@ -219,13 +225,13 @@ export default function RecipeCard({
             </div>
           )}
 
-          {/* Action buttons */}
+          {/* Actions */}
           <div style={{ display: "flex", gap: 6, marginTop: 10, flexWrap: "wrap" }}>
-            <button type="button" onClick={() => onCookRecipe(recipe)}
+            <button type="button" onClick={() => onCookRecipe(displayRecipe)}
               style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: "none", background: "#c4622d", color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 13 }}>🍳 Cook</button>
-            <button type="button" onClick={() => onAddIngredients(missing.length ? missing : ingredients)}
+            <button type="button" onClick={() => onAddIngredients(originalMissing.length ? originalMissing : recipe.ingredients)}
               style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 13 }}>
-              🛒 {missing.length ? `Add ${missing.length} missing` : "Add all"}
+              🛒 {originalMissing.length ? `Add ${originalMissing.length} missing` : "Add all"}
             </button>
             <button type="button" onClick={() => setShowSimilar(true)}
               style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: "none", background: "#805ad5", color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 13 }}>🔍 Similar</button>
@@ -234,7 +240,6 @@ export default function RecipeCard({
           </div>
         </div>
       </div>
-
       {showSimilar && <SimilarModal recipe={recipe} pantry={pantry} onClose={() => setShowSimilar(false)} />}
     </>
   );

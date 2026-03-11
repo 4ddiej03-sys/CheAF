@@ -17,6 +17,7 @@ import SettingsScreen from "./components/SettingsScreen";
 import VoiceButton from "./components/VoiceButton";
 import { generateAIRecipe } from "./utils/aiRecipe";
 import { calcMatchPct, getMissingIngredients } from "./utils/pantryMatch";
+import MealPlanner from "./components/MealPlanner";
 
 const DEFAULT_SETTINGS = {
   voiceEnabled:  false,
@@ -46,6 +47,7 @@ export default function App() {
   const [toast, setToast]                           = useState("");
   const [syncing, setSyncing]                       = useState(false);
   const [settings, setSettings]                     = useState(DEFAULT_SETTINGS);
+  const [showMealPlanner, setShowMealPlanner]       = useState(false);
 
   function showToast(msg) { setToast(msg); setTimeout(() => setToast(""), 3000); }
 
@@ -273,6 +275,7 @@ export default function App() {
               <button type="button" onClick={generateRecipeFromPantry} disabled={aiLoading} style={btn(aiLoading ? "#9f7aea" : "#6b46c1")}>🤖 AI</button>
               <button type="button" onClick={cookBestPantryRecipe} style={btn("#c4622d")}>🍳 Best Match</button>
               <button type="button" onClick={() => setShowOnlineSearch(true)} style={btn("#38a169")}>🌐 Online</button>
+              <button type="button" onClick={() => setShowMealPlanner(true)} style={btn("#e67e22")}>📅 Plan</button>
             </div>
             <RecipeList recipes={recipes} pantry={pantry} favorites={favorites}
               userId={user?.id}
@@ -322,6 +325,9 @@ export default function App() {
       {showImport       && <ImportRecipeModal onClose={() => setShowImport(false)} onSave={r => { handleSaveRecipe(r); setShowImport(false); }} />}
       {showOnlineSearch && <OnlineRecipeSearch pantry={pantry} onSaveRecipe={handleSaveRecipe} onClose={() => setShowOnlineSearch(false)} />}
       {aiOptions        && <RecipePicker recipes={aiOptions} onPick={r => { setAiOptions(null); handleSaveRecipe(r); }} onClose={() => setAiOptions(null)} />}
+      {showMealPlanner && (<MealPlanner recipes={recipes} pantry={pantry} onAddToShoppingList={addToShoppingList} onClose={() => setShowMealPlanner(false)}
+      />
+    )}
 
       <BottomNav tab={tab} setTab={setTab} />
 
