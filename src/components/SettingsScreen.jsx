@@ -12,7 +12,7 @@ export default function SettingsScreen({ user, settings, onUpdateSettings, onSig
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
     if (key === "voiceEnabled" && value) {
-      speak("Voice navigation is now on. Tap the microphone button to give a command.");
+      speak("Voice navigation is now on. A microphone button has appeared at the bottom right of your screen. Tap it once to give a voice command. Say help to hear all available commands.");
     }
     if (key === "voiceEnabled" && !value) {
       speak("Voice navigation off.");
