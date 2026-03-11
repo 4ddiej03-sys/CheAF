@@ -8,6 +8,7 @@ const FOUNDER_EMAIL = "4ddiej03@gmail.com"; // Only you get the Founder badge
 export function useSubscription(user) {
   const [isPro, setIsPro]               = useState(false);
   const [isFounder, setIsFounder]       = useState(false);
+  const [isPioneer, setIsPioneer]       = useState(false);
   const [memberNumber, setMemberNumber] = useState(null);
   const [aiCallsUsed, setAiCallsUsed]   = useState(0);
   const [loading, setLoading]           = useState(true);
@@ -18,42 +19,48 @@ export function useSubscription(user) {
 
     async function check() {
       try {
-        // Get or create user_data row
-        let { data } = await supabase
+        // Step 1 — ensure user_data row exists (upsert so it's always there)
+        await supabase
+          .from("user_data")
+          .upsert({ user_id: user.id }, { onConflict: "user_id", ignoreDuplicates: true });
+
+        // Step 2 — fetch the row
+        const { data, error } = await supabase
           .from("user_data")
           .select("is_pro, ai_calls_used, member_number")
           .eq("user_id", user.id)
           .single();
 
-        if (data) {
-          setIsPro(data.is_pro || false);
-          setAiCallsUsed(data.ai_calls_used || 0);
+        if (error) { console.error("useSubscription fetch error:", error); setLoading(false); return; }
 
-          // If member_number not yet assigned, assign next available
-          if (!data.member_number) {
-            const { count } = await supabase
-              .from("user_data")
-              .select("*", { count: "exact", head: true })
-              .not("member_number", "is", null);
+        setIsPro(data.is_pro || false);
+        setAiCallsUsed(data.ai_calls_used || 0);
 
-            const nextNumber = (count || 0) + 1;
+        let number = data.member_number;
 
-            await supabase
-              .from("user_data")
-              .update({ member_number: nextNumber })
-              .eq("user_id", user.id);
+        // Step 3 — if no member_number yet, assign next available
+        if (!number) {
+          const { count } = await supabase
+            .from("user_data")
+            .select("*", { count: "exact", head: true })
+            .not("member_number", "is", null);
 
-            setMemberNumber(nextNumber);
-          } else {
-            setMemberNumber(data.member_number);
-          }
+          number = (count || 0) + 1;
+
+          await supabase
+            .from("user_data")
+            .update({ member_number: number })
+            .eq("user_id", user.id);
         }
 
-        // Only YOU get the Founder badge
+        setMemberNumber(number);
+
+        // Step 4 — assign badge
         if (user.email === FOUNDER_EMAIL) {
           setIsFounder(true);
           setIsPro(true);
-        } else if (memberNumber !== null && memberNumber <= FOUNDING_MEMBER_LIMIT) {
+        } else if (number <= FOUNDING_MEMBER_LIMIT) {
+          setIsPioneer(true);
           setIsPro(true);
         }
 
@@ -65,14 +72,6 @@ export function useSubscription(user) {
     check();
   }, [user]);
 
-  // Re-check pro status when memberNumber updates
-  useEffect(() => {
-    if (!user || isFounder) return;
-    if (memberNumber !== null && memberNumber <= FOUNDING_MEMBER_LIMIT) {
-      setIsPro(true);
-    }
-  }, [memberNumber]);
-
   async function incrementAiCalls() {
     if (!user) return;
     const next = aiCallsUsed + 1;
@@ -83,7 +82,6 @@ export function useSubscription(user) {
       .eq("user_id", user.id);
   }
 
-  const isPioneer = !isFounder && memberNumber !== null && memberNumber <= FOUNDING_MEMBER_LIMIT;
   const canUseAI  = isPro || aiCallsUsed < FREE_AI_LIMIT;
   const callsLeft = Math.max(0, FREE_AI_LIMIT - aiCallsUsed);
 
