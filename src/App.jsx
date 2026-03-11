@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase, loadUserData, saveUserData, signOut } from "./utils/supabase";
 import { useVoiceNavigation, speak } from "./utils/useVoiceNavigation";
+import { useSubscription } from "./utils/useSubscription";
 import defaultRecipes from "./data/recipes.json";
 import NewRecipeModal from "./components/NewRecipeModal";
 import ImportRecipeModal from "./components/ImportRecipeModal";
@@ -15,16 +16,17 @@ import OnlineRecipeSearch from "./components/OnlineRecipeSearch";
 import AuthScreen from "./components/AuthScreen";
 import SettingsScreen from "./components/SettingsScreen";
 import VoiceButton from "./components/VoiceButton";
+import Paywall from "./components/Paywall";
+import MealPlanner from "./components/MealPlanner";
 import { generateAIRecipe } from "./utils/aiRecipe";
 import { calcMatchPct, getMissingIngredients } from "./utils/pantryMatch";
-import MealPlanner from "./components/MealPlanner";
 
 const DEFAULT_SETTINGS = {
-  voiceEnabled:  false,
-  voiceCooking:  false,
-  largeText:     false,
-  highContrast:  false,
-  darkMode:      false,
+  voiceEnabled: false,
+  voiceCooking: false,
+  largeText:    false,
+  highContrast: false,
+  darkMode:     false,
 };
 
 export default function App() {
@@ -42,24 +44,41 @@ export default function App() {
   const [showImport, setShowImport]                 = useState(false);
   const [showOnlineSearch, setShowOnlineSearch]     = useState(false);
   const [showScanner, setShowScanner]               = useState(false);
+  const [showPaywall, setShowPaywall]               = useState(false);
+  const [showMealPlanner, setShowMealPlanner]       = useState(false);
   const [aiOptions, setAiOptions]                   = useState(null);
   const [aiLoading, setAiLoading]                   = useState(false);
   const [toast, setToast]                           = useState("");
   const [syncing, setSyncing]                       = useState(false);
   const [settings, setSettings]                     = useState(DEFAULT_SETTINGS);
-  const [showMealPlanner, setShowMealPlanner]       = useState(false);
+  
+
+  // ── Subscription ────────────────────────────────────────────────
+  const { isPro, isFounder, isPioneer, memberNumber, canUseAI, callsLeft, incrementAiCalls } = useSubscription(user);
 
   function showToast(msg) { setToast(msg); setTimeout(() => setToast(""), 3000); }
 
-  // ── Apply accessibility settings globally ───────────────────────
+  // ── Check for successful Stripe redirect ────────────────────────
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("subscribed") === "true") {
+      showToast("🎉 Welcome to Pro! All features unlocked.");
+      window.history.replaceState({}, "", "/");
+    }
+    if (params.get("cancelled") === "true") {
+      showToast("No worries — you can upgrade anytime.");
+      window.history.replaceState({}, "", "/");
+    }
+  }, []);
+
+  // ── Apply accessibility settings ────────────────────────────────
   useEffect(() => {
     const root = document.documentElement;
-    root.style.fontSize    = settings.largeText    ? "18px"    : "16px";
-    root.style.filter      = settings.highContrast ? "contrast(1.4)" : "";
-    root.style.background  = settings.darkMode     ? "#1a1a1a" : "";
+    root.style.fontSize   = settings.largeText    ? "18px" : "16px";
+    root.style.filter     = settings.highContrast ? "contrast(1.4)" : "";
+    root.style.background = settings.darkMode     ? "#1a1a1a" : "";
   }, [settings]);
 
-  // ── Load settings from localStorage ────────────────────────────
   useEffect(() => {
     try {
       const saved = localStorage.getItem("cheaf_settings");
@@ -84,7 +103,7 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // ── Load data when user logs in ─────────────────────────────────
+  // ── Load data ───────────────────────────────────────────────────
   useEffect(() => {
     if (!user) return;
     async function load() {
@@ -106,7 +125,7 @@ export default function App() {
     load();
   }, [user]);
 
-  // ── Save to Supabase ────────────────────────────────────────────
+  // ── Sync to Supabase ────────────────────────────────────────────
   const syncData = useCallback(async (newRecipes, newFavorites, newShopping, newPantry) => {
     if (!user) return;
     setSyncing(true);
@@ -167,12 +186,15 @@ export default function App() {
     cookRecipe(best);
   }
 
+  // ── AI Generate — checks subscription first ─────────────────────
   async function generateRecipeFromPantry() {
     if (!pantry.length) { showToast("Your pantry is empty 🫙"); return; }
+    if (!canUseAI) { setShowPaywall(true); return; }
     setAiLoading(true);
     showToast("🤖 Generating 3 recipe options…");
     try {
       const options = await generateAIRecipe(pantry);
+      await incrementAiCalls();
       if (options.length === 1) { handleSaveRecipe(options[0]); }
       else { setAiOptions(options); }
     } catch (err) {
@@ -217,8 +239,7 @@ export default function App() {
     enabled: settings.voiceEnabled,
     onNavigate: (t) => { setTab(t); },
     onAddPantryItem: (name) => {
-      const item = { name: name.toLowerCase().trim(), category: "Other" };
-      updatePantry([...pantry, item]);
+      updatePantry([...pantry, { name: name.toLowerCase().trim(), category: "Other" }]);
     },
     onScanFridge:     () => { setTab("pantry"); setShowScanner(true); },
     onGenerateRecipe: generateRecipeFromPantry,
@@ -226,10 +247,9 @@ export default function App() {
     onCookBestMatch:  cookBestPantryRecipe,
     onImportURL:      () => setShowImport(true),
     recipes,
-    onCookRecipe:     cookRecipe,
+    onCookRecipe: cookRecipe,
   });
 
-  // ── Dark mode wrapper ───────────────────────────────────────────
   const appBg    = settings.darkMode ? "#1a1a1a" : "#faf6ef";
   const appColor = settings.darkMode ? "#f0f0f0" : "#1a202c";
 
@@ -261,7 +281,19 @@ export default function App() {
               </p>
             </div>
           </div>
-          {aiLoading && <span style={{ fontSize: 13, color: "#805ad5" }}>🤖 Thinking…</span>}
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            {aiLoading && <span style={{ fontSize: 13, color: "#805ad5" }}>🤖 Thinking…</span>}
+            {/* Pro / Founder badge */}
+            {isFounder && <span style={{ fontSize: 11, background: "#000", color: "#c4622d", padding: "3px 8px", borderRadius: 50, fontWeight: 700 }}>👑 Founder</span>}
+            {isPioneer && <span style={{ fontSize: 11, background: "#744210", color: "#fefcbf", padding: "3px 8px", borderRadius: 50, fontWeight: 700 }}>🌟 Pioneer #{memberNumber}</span>}
+            {isPro && !isFounder && !isPioneer && <span style={{ fontSize: 11, background: "#c4622d", color: "#fff", padding: "3px 8px", borderRadius: 50, fontWeight: 700 }}>⭐ Pro</span>}
+            {!isPro && !isFounder && !isPioneer && (
+              <button type="button" onClick={() => setShowPaywall(true)}
+                style={{ fontSize: 11, background: "#f7fafc", border: "1px solid #e2e8f0", color: "#718096", padding: "4px 10px", borderRadius: 50, cursor: "pointer", fontWeight: 600 }}>
+                {callsLeft} AI left · Upgrade
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Tabs */}
@@ -312,7 +344,10 @@ export default function App() {
             user={user}
             settings={settings}
             onUpdateSettings={updateSettings}
-            onSignOut={handleSignOut} />
+            onSignOut={handleSignOut}
+            isPro={isPro}
+            isFounder={isFounder}
+            onUpgrade={() => setShowPaywall(true)} />
         )}
       </div>
 
@@ -325,13 +360,10 @@ export default function App() {
       {showImport       && <ImportRecipeModal onClose={() => setShowImport(false)} onSave={r => { handleSaveRecipe(r); setShowImport(false); }} />}
       {showOnlineSearch && <OnlineRecipeSearch pantry={pantry} onSaveRecipe={handleSaveRecipe} onClose={() => setShowOnlineSearch(false)} />}
       {aiOptions        && <RecipePicker recipes={aiOptions} onPick={r => { setAiOptions(null); handleSaveRecipe(r); }} onClose={() => setAiOptions(null)} />}
-      {showMealPlanner && (<MealPlanner recipes={recipes} pantry={pantry} onAddToShoppingList={addToShoppingList} onClose={() => setShowMealPlanner(false)}
-      />
-    )}
+      {showMealPlanner  && <MealPlanner recipes={recipes} pantry={pantry} onAddToShoppingList={addToShoppingList} onClose={() => setShowMealPlanner(false)} />}
+      {showPaywall      && <Paywall user={user} onClose={() => setShowPaywall(false)} onSuccess={() => { setShowPaywall(false); showToast("🎉 Welcome to Pro!"); }} />}
 
       <BottomNav tab={tab} setTab={setTab} />
-
-      {/* Floating voice button */}
       <VoiceButton enabled={settings.voiceEnabled} onPress={startListening} />
 
       {toast && (
