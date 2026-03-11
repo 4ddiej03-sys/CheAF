@@ -18,6 +18,7 @@ import SettingsScreen from "./components/SettingsScreen";
 import VoiceButton from "./components/VoiceButton";
 import Paywall from "./components/Paywall";
 import MealPlanner from "./components/MealPlanner";
+import LandingPage from "./components/LandingPage";
 import { generateAIRecipe } from "./utils/aiRecipe";
 import { calcMatchPct, getMissingIngredients } from "./utils/pantryMatch";
 
@@ -32,6 +33,7 @@ const DEFAULT_SETTINGS = {
 export default function App() {
   const [user, setUser]                             = useState(null);
   const [authLoading, setAuthLoading]               = useState(true);
+  const [showAuth, setShowAuth]                     = useState(false);
   const [tab, setTab]                               = useState("recipes");
   const [recipes, setRecipes]                       = useState([]);
   const [favorites, setFavorites]                   = useState([]);
@@ -51,7 +53,6 @@ export default function App() {
   const [toast, setToast]                           = useState("");
   const [syncing, setSyncing]                       = useState(false);
   const [settings, setSettings]                     = useState(DEFAULT_SETTINGS);
-  
 
   // ── Subscription ────────────────────────────────────────────────
   const { isPro, isFounder, isPioneer, memberNumber, canUseAI, callsLeft, incrementAiCalls } = useSubscription(user);
@@ -232,6 +233,7 @@ export default function App() {
     await signOut();
     setRecipes([]); setFavorites([]); setShoppingList([]); setPantry([]);
     setTab("recipes");
+    setShowAuth(false);
   }
 
   // ── Voice navigation ────────────────────────────────────────────
@@ -264,7 +266,11 @@ export default function App() {
     </div>
   );
 
-  if (!user) return <AuthScreen onAuth={() => {}} />;
+  // ── Not logged in — show landing page or auth screen ────────────
+  if (!user) {
+    if (showAuth) return <AuthScreen onAuth={() => setShowAuth(false)} />;
+    return <LandingPage onGetStarted={() => setShowAuth(true)} />;
+  }
 
   return (
     <div style={{ paddingBottom: 90, fontFamily: "system-ui, sans-serif", background: appBg, color: appColor, minHeight: "100vh" }}>
@@ -277,22 +283,37 @@ export default function App() {
             <div>
               <h1 style={{ margin: 0, fontSize: 22, color: appColor }}>Che AF</h1>
               <p style={{ margin: 0, fontSize: 12, color: "#718096" }}>
-                {syncing ? "☁️ Syncing…" : `Cook Like You Know · ☁️ ${user.email.split("@")[0]}`}
+                {syncing ? "☁️ Syncing…" : `${user.email.split("@")[0]}`}
               </p>
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             {aiLoading && <span style={{ fontSize: 13, color: "#805ad5" }}>🤖 Thinking…</span>}
-            {/* Pro / Founder badge */}
-            {isFounder && <span style={{ fontSize: 11, background: "#000", color: "#c4622d", padding: "3px 8px", borderRadius: 50, fontWeight: 700 }}>👑 Founder</span>}
-            {isPioneer && <span style={{ fontSize: 11, background: "#744210", color: "#fefcbf", padding: "3px 8px", borderRadius: 50, fontWeight: 700 }}>🌟 Pioneer #{memberNumber}</span>}
-            {isPro && !isFounder && !isPioneer && <span style={{ fontSize: 11, background: "#c4622d", color: "#fff", padding: "3px 8px", borderRadius: 50, fontWeight: 700 }}>⭐ Pro</span>}
+            {isFounder && (
+              <span style={{ fontSize: 11, background: "#000", color: "#c4622d", padding: "3px 8px", borderRadius: 50, fontWeight: 700 }}>
+                👑 Founder
+              </span>
+            )}
+            {isPioneer && (
+              <span style={{ fontSize: 11, background: "#744210", color: "#fefcbf", padding: "3px 8px", borderRadius: 50, fontWeight: 700 }}>
+                🌟 Pioneer #{memberNumber}
+              </span>
+            )}
+            {isPro && !isFounder && !isPioneer && (
+              <span style={{ fontSize: 11, background: "#c4622d", color: "#fff", padding: "3px 8px", borderRadius: 50, fontWeight: 700 }}>
+                ⭐ Pro
+              </span>
+            )}
             {!isPro && !isFounder && !isPioneer && (
               <button type="button" onClick={() => setShowPaywall(true)}
                 style={{ fontSize: 11, background: "#f7fafc", border: "1px solid #e2e8f0", color: "#718096", padding: "4px 10px", borderRadius: 50, cursor: "pointer", fontWeight: 600 }}>
                 {callsLeft} AI left · Upgrade
               </button>
             )}
+            <button type="button" onClick={handleSignOut}
+              style={{ fontSize: 11, background: "none", border: "1px solid #e2e8f0", color: "#a0aec0", padding: "4px 10px", borderRadius: 50, cursor: "pointer", fontWeight: 600 }}>
+              Sign out
+            </button>
           </div>
         </div>
 
