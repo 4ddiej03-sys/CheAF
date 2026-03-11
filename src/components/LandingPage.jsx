@@ -2,42 +2,12 @@
 import { useState, useEffect } from "react";
 
 const FEATURES = [
-  {
-    icon: "📸",
-    title: "Scan Your Fridge",
-    desc: "Point your camera at your fridge. AI identifies every ingredient and generates recipes instantly.",
-    color: "#ff6b35",
-  },
-  {
-    icon: "🤖",
-    title: "AI Recipe Generation",
-    desc: "Tell us what you have. We'll create a recipe you've never seen before — perfectly matched to your pantry.",
-    color: "#c4622d",
-  },
-  {
-    icon: "📅",
-    title: "Weekly Meal Planner",
-    desc: "Plan your whole week in seconds. Auto-generates your shopping list for everything you're missing.",
-    color: "#e67e22",
-  },
-  {
-    icon: "🎤",
-    title: "Voice Navigation",
-    desc: "Fully accessible voice control. Built for blind users from the ground up — a world first.",
-    color: "#ff6b35",
-  },
-  {
-    icon: "☁️",
-    title: "Cloud Sync",
-    desc: "Your recipes, pantry and shopping list sync across every device. Always with you.",
-    color: "#c4622d",
-  },
-  {
-    icon: "🔗",
-    title: "Import Any Recipe",
-    desc: "Found a recipe online? Paste the URL and it's saved instantly — scaled to your serving size.",
-    color: "#e67e22",
-  },
+  { icon: "📸", title: "Scan Your Fridge", desc: "Point your camera at your fridge. AI identifies every ingredient and generates recipes instantly.", color: "#ff6b35" },
+  { icon: "🤖", title: "AI Recipe Generation", desc: "Tell us what you have. We'll create a recipe perfectly matched to your pantry.", color: "#c4622d" },
+  { icon: "📅", title: "Weekly Meal Planner", desc: "Plan your whole week in seconds. Auto-generates your shopping list for everything you're missing.", color: "#e67e22" },
+  { icon: "🎤", title: "Voice Navigation", desc: "Fully accessible voice control. Built for blind users from the ground up — a world first.", color: "#ff6b35" },
+  { icon: "☁️", title: "Cloud Sync", desc: "Your recipes, pantry and shopping list sync across every device. Always with you.", color: "#c4622d" },
+  { icon: "🔗", title: "Import Any Recipe", desc: "Found a recipe online? Paste the URL and it's saved instantly — scaled to your serving size.", color: "#e67e22" },
 ];
 
 const STEPS = [
@@ -48,7 +18,7 @@ const STEPS = [
 
 export default function LandingPage({ onGetStarted }) {
   const [scrolled, setScrolled] = useState(false);
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible]   = useState(false);
 
   useEffect(() => {
     setTimeout(() => setVisible(true), 100);
@@ -58,18 +28,10 @@ export default function LandingPage({ onGetStarted }) {
   }, []);
 
   return (
-    <div style={{
-      background: "#0a0a0a",
-      color: "#f5f0e8",
-      minHeight: "100vh",
-      fontFamily: "'Georgia', 'Times New Roman', serif",
-      overflowX: "hidden",
-    }}>
+    <div style={{ background: "#0a0a0a", color: "#f5f0e8", minHeight: "100vh", fontFamily: "'Georgia', 'Times New Roman', serif", overflowX: "hidden" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&display=swap');
-
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
         .hero-title {
           font-family: 'Playfair Display', Georgia, serif;
           font-size: clamp(52px, 12vw, 120px);
@@ -78,171 +40,97 @@ export default function LandingPage({ onGetStarted }) {
           letter-spacing: -2px;
           color: #f5f0e8;
         }
-        .hero-title em {
-          font-style: italic;
-          color: #c4622d;
-        }
-        .body-font {
-          font-family: 'DM Sans', system-ui, sans-serif;
-          font-weight: 300;
-        }
-        .nav-fixed {
-          position: fixed;
-          top: 0; left: 0; right: 0;
-          z-index: 100;
-          padding: 16px 24px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          transition: background 0.3s;
-        }
-        .nav-scrolled {
-          background: rgba(10,10,10,0.95);
-          border-bottom: 1px solid rgba(196,98,45,0.2);
-          backdrop-filter: blur(12px);
-        }
-        .cta-btn {
-          background: #c4622d;
-          color: #fff;
-          border: none;
-          padding: 14px 32px;
-          font-family: 'DM Sans', system-ui, sans-serif;
-          font-weight: 500;
-          font-size: 15px;
-          cursor: pointer;
-          letter-spacing: 0.5px;
-          transition: all 0.2s;
-          clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-        }
-        .cta-btn:hover {
-          background: #e07535;
-          transform: translateY(-1px);
-        }
-        .cta-btn-lg {
-          padding: 18px 48px;
-          font-size: 17px;
-          clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
-        }
-        .cta-btn-outline {
-          background: transparent;
-          border: 1px solid rgba(196,98,45,0.5);
-          color: #c4622d;
-        }
-        .cta-btn-outline:hover {
-          background: rgba(196,98,45,0.1);
-          border-color: #c4622d;
-        }
-        .feature-card {
-          border: 1px solid rgba(245,240,232,0.08);
-          padding: 28px;
-          transition: all 0.3s;
-          position: relative;
-          overflow: hidden;
-          background: rgba(255,255,255,0.02);
-        }
-        .feature-card::before {
-          content: '';
-          position: absolute;
-          top: 0; left: 0; right: 0;
-          height: 2px;
-          background: linear-gradient(90deg, transparent, #c4622d, transparent);
-          opacity: 0;
-          transition: opacity 0.3s;
-        }
-        .feature-card:hover::before { opacity: 1; }
-        .feature-card:hover {
-          border-color: rgba(196,98,45,0.3);
-          background: rgba(196,98,45,0.04);
-          transform: translateY(-2px);
-        }
-        .badge-pill {
-          display: inline-block;
-          border: 1px solid rgba(196,98,45,0.4);
-          color: #c4622d;
-          padding: 6px 16px;
-          font-family: 'DM Sans', system-ui, sans-serif;
-          font-size: 12px;
-          font-weight: 500;
-          letter-spacing: 2px;
-          text-transform: uppercase;
-          margin-bottom: 24px;
-        }
-        .divider-line {
-          width: 60px;
-          height: 1px;
-          background: #c4622d;
-          margin: 24px 0;
-        }
-        .step-num {
-          font-family: 'Playfair Display', serif;
-          font-size: 72px;
-          font-weight: 900;
-          color: rgba(196,98,45,0.15);
-          line-height: 1;
-          position: absolute;
-          top: -10px;
-          left: 0;
-        }
-        .hero-fade-in {
-          opacity: 0;
-          transform: translateY(30px);
-          transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .hero-fade-in.visible { opacity: 1; transform: translateY(0); }
-        .delay-1 { transition-delay: 0.1s; }
-        .delay-2 { transition-delay: 0.25s; }
-        .delay-3 { transition-delay: 0.4s; }
-        .delay-4 { transition-delay: 0.55s; }
-        .grain {
-          position: fixed;
-          inset: 0;
-          pointer-events: none;
-          z-index: 0;
-          opacity: 0.03;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
-        }
+        .hero-title em { font-style: italic; color: #c4622d; }
+        .body-font { font-family: 'DM Sans', system-ui, sans-serif; font-weight: 300; }
         .pioneer-bar {
+          position: fixed;
+          top: 0; left: 0; right: 0;
+          z-index: 200;
           background: linear-gradient(90deg, #c4622d, #e07535, #c4622d);
           background-size: 200% 100%;
           animation: shimmer 3s linear infinite;
           padding: 10px 0;
           text-align: center;
         }
-        @keyframes shimmer {
-          0% { background-position: 0% 50%; }
-          100% { background-position: 200% 50%; }
+        @keyframes shimmer { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+        .nav-fixed {
+          position: fixed;
+          top: 41px; left: 0; right: 0;
+          z-index: 100;
+          padding: 16px 24px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          background: rgba(10,10,10,0.95);
+          backdrop-filter: blur(12px);
+          border-bottom: 1px solid rgba(196,98,45,0.15);
+          transition: border-color 0.3s;
         }
+        .nav-scrolled { border-bottom-color: rgba(196,98,45,0.4); }
+        .cta-btn {
+          background: #c4622d; color: #fff; border: none;
+          padding: 14px 32px;
+          font-family: 'DM Sans', system-ui, sans-serif;
+          font-weight: 500; font-size: 15px; cursor: pointer;
+          letter-spacing: 0.5px; transition: all 0.2s;
+          clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+        }
+        .cta-btn:hover { background: #e07535; transform: translateY(-1px); }
+        .cta-btn-lg { padding: 18px 48px; font-size: 17px; clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%); }
+        .cta-btn-outline { background: transparent; border: 1px solid rgba(196,98,45,0.5); color: #c4622d; }
+        .cta-btn-outline:hover { background: rgba(196,98,45,0.1); border-color: #c4622d; }
+        .feature-card {
+          border: 1px solid rgba(245,240,232,0.08); padding: 28px;
+          transition: all 0.3s; position: relative; overflow: hidden;
+          background: rgba(255,255,255,0.02);
+        }
+        .feature-card::before {
+          content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+          background: linear-gradient(90deg, transparent, #c4622d, transparent);
+          opacity: 0; transition: opacity 0.3s;
+        }
+        .feature-card:hover::before { opacity: 1; }
+        .feature-card:hover { border-color: rgba(196,98,45,0.3); background: rgba(196,98,45,0.04); transform: translateY(-2px); }
+        .badge-pill {
+          display: inline-block; border: 1px solid rgba(196,98,45,0.4); color: #c4622d;
+          padding: 6px 16px; font-family: 'DM Sans', system-ui, sans-serif;
+          font-size: 12px; font-weight: 500; letter-spacing: 2px;
+          text-transform: uppercase; margin-bottom: 24px;
+        }
+        .divider-line { width: 60px; height: 1px; background: #c4622d; margin: 24px 0; }
+        .step-num {
+          font-family: 'Playfair Display', serif; font-size: 72px; font-weight: 900;
+          color: rgba(196,98,45,0.15); line-height: 1; position: absolute; top: -10px; left: 0;
+        }
+        .hero-fade-in { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .hero-fade-in.visible { opacity: 1; transform: translateY(0); }
+        .delay-1 { transition-delay: 0.1s; }
+        .delay-2 { transition-delay: 0.25s; }
+        .delay-3 { transition-delay: 0.4s; }
+        .delay-4 { transition-delay: 0.55s; }
         .big-quote {
           font-family: 'Playfair Display', serif;
-          font-size: clamp(24px, 5vw, 48px);
-          font-weight: 400;
-          font-style: italic;
-          line-height: 1.3;
-          color: rgba(245,240,232,0.7);
+          font-size: clamp(24px, 5vw, 48px); font-weight: 400; font-style: italic;
+          line-height: 1.3; color: rgba(245,240,232,0.7);
         }
-        .big-quote strong {
-          color: #f5f0e8;
-          font-style: normal;
-          font-weight: 900;
-        }
+        .big-quote strong { color: #f5f0e8; font-style: normal; font-weight: 900; }
+        .pioneer-circle { display: flex; }
         @media (max-width: 600px) {
           .feature-grid { grid-template-columns: 1fr !important; }
-          .hero-section { padding: 120px 24px 80px !important; }
+          .hero-section { padding: 160px 24px 80px !important; }
+          .pioneer-circle { display: none !important; }
+          .pricing-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
 
-      {/* Grain overlay */}
-      <div className="grain" />
-
-      {/* Pioneer bar */}
+      {/* Announcement bar — fixed at very top */}
       <div className="pioneer-bar">
         <p className="body-font" style={{ fontSize: 13, color: "#fff", fontWeight: 500 }}>
-          🌟 First 200 users get <strong>Pro FREE forever</strong> + Pioneer badge — only {" "}
-          <strong>limited spots left</strong>
+          🌟 First 200 users get <strong>Pro FREE forever</strong> + Pioneer badge — <strong>limited spots left</strong>
         </p>
       </div>
 
-      {/* Nav */}
+      {/* Nav — sits just below the bar */}
       <nav className={`nav-fixed ${scrolled ? "nav-scrolled" : ""}`}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <img src="/icon-192.png" alt="Che AF" style={{ width: 32, height: 32, borderRadius: 8 }} />
@@ -255,8 +143,8 @@ export default function LandingPage({ onGetStarted }) {
         </button>
       </nav>
 
-      {/* Hero */}
-      <section className="hero-section" style={{ padding: "140px 24px 100px", maxWidth: 900, margin: "0 auto", position: "relative", zIndex: 1 }}>
+      {/* Hero — padded to clear both the bar AND the nav */}
+      <section className="hero-section" style={{ padding: "180px 24px 100px", maxWidth: 900, margin: "0 auto", position: "relative", zIndex: 1 }}>
         <div className={`hero-fade-in ${visible ? "visible" : ""}`}>
           <div className="badge-pill">Cook Like You Know</div>
         </div>
@@ -273,33 +161,26 @@ export default function LandingPage({ onGetStarted }) {
         </p>
         <div className={`hero-fade-in delay-3 ${visible ? "visible" : ""}`}
           style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-          <button className="cta-btn cta-btn-lg" onClick={onGetStarted}>
-            🍳 Start Cooking Free
-          </button>
-          <button className="cta-btn cta-btn-outline cta-btn-lg" onClick={onGetStarted}>
-            See how it works
-          </button>
+          <button className="cta-btn cta-btn-lg" onClick={onGetStarted}>🍳 Start Cooking Free</button>
+          <button className="cta-btn cta-btn-outline cta-btn-lg" onClick={onGetStarted}>See how it works</button>
         </div>
         <p className={`body-font hero-fade-in delay-4 ${visible ? "visible" : ""}`}
           style={{ marginTop: 20, fontSize: 13, color: "rgba(245,240,232,0.35)" }}>
           No credit card · Free forever for first 200 users · Works on any device
         </p>
 
-        {/* Floating badge */}
-        <div style={{
-          position: "absolute", top: 140, right: 0,
-          width: 140, height: 140,
-          borderRadius: "50%",
+        {/* Pioneer circle — hidden on mobile */}
+        <div className="pioneer-circle" style={{
+          position: "absolute", top: 180, right: 0,
+          width: 140, height: 140, borderRadius: "50%",
           border: "1px solid rgba(196,98,45,0.3)",
-          display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center",
-          textAlign: "center",
-          background: "rgba(196,98,45,0.06)",
+          flexDirection: "column", alignItems: "center", justifyContent: "center",
+          textAlign: "center", background: "rgba(196,98,45,0.06)",
           backdropFilter: "blur(8px)",
         }}>
-          <span style={{ fontSize: 28 }}>👑</span>
+          <span style={{ fontSize: 28 }}>🌟</span>
           <span className="body-font" style={{ fontSize: 11, color: "#c4622d", fontWeight: 500, marginTop: 4, lineHeight: 1.3 }}>
-            Founding<br />Member<br />Perks
+            Pioneer<br />Member<br />Perks
           </span>
         </div>
       </section>
@@ -309,7 +190,7 @@ export default function LandingPage({ onGetStarted }) {
         <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
           <p className="big-quote">
             "Stop googling recipes.<br />
-            Start cooking with <strong>what you already have.</strong>"
+            Start cooking with <br /><strong>what you already have.</strong>"
           </p>
         </div>
       </section>
@@ -389,8 +270,7 @@ export default function LandingPage({ onGetStarted }) {
             Start free.<br />
             <em style={{ color: "#c4622d", fontStyle: "italic" }}>Stay free</em> if you're early.
           </h2>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, background: "rgba(245,240,232,0.06)" }}>
-            {/* Free */}
+          <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, background: "rgba(245,240,232,0.06)" }}>
             <div style={{ padding: 36, background: "#0a0a0a", textAlign: "left" }}>
               <p className="body-font" style={{ fontSize: 12, letterSpacing: 2, textTransform: "uppercase", color: "rgba(245,240,232,0.4)", marginBottom: 12 }}>Free tier</p>
               <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 40, fontWeight: 900, color: "#f5f0e8", marginBottom: 4 }}>$0</p>
@@ -399,7 +279,6 @@ export default function LandingPage({ onGetStarted }) {
                 <div key={i} className="body-font" style={{ fontSize: 14, color: "rgba(245,240,232,0.55)", marginBottom: 10 }}>✓ {f}</div>
               ))}
             </div>
-            {/* Pro */}
             <div style={{ padding: 36, background: "rgba(196,98,45,0.08)", border: "1px solid rgba(196,98,45,0.3)", textAlign: "left", position: "relative" }}>
               <div style={{ position: "absolute", top: -1, right: 20, background: "#c4622d", padding: "4px 12px", fontSize: 11, fontWeight: 700, fontFamily: "'DM Sans', sans-serif" }}>
                 🌟 PIONEER OFFER
