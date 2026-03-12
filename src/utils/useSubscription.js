@@ -48,7 +48,7 @@ export function useSubscription(user) {
         setMemberNumber(number);
 
         // Founder — unlimited everything
-        if (user.email === FOUNDER_EMAIL) {
+        if (number === 1) {
           setIsFounder(true);
           setIsPro(true);
         // First 200 — Pioneer, Pro free
