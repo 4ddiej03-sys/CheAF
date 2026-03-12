@@ -294,7 +294,7 @@ export default function App() {
                 👑 Founder
               </span>
             )}
-            {isPioneer && (
+            {isPioneer && !isFounder && (
               <span style={{ fontSize: 11, background: "#744210", color: "#fefcbf", padding: "3px 8px", borderRadius: 50, fontWeight: 700 }}>
                 🌟 Pioneer #{memberNumber}
               </span>
