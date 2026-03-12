@@ -2,7 +2,7 @@
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-const PRICE_ID = "price_1T9dV3DQ10jMlUmfHMeOnBYh";
+const PRICE_ID = "price_1T9wl5RkZ3rQ2XvFC0Bj6a11";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
