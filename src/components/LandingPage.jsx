@@ -237,7 +237,7 @@ export default function LandingPage({ onGetStarted }) {
       {/* Big quote */}
       <section style={{ padding: "60px 24px", borderTop: "1px solid rgba(245,240,232,0.06)", borderBottom: "1px solid rgba(245,240,232,0.06)", position: "relative", zIndex: 1 }}>
         <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
-          <p className="big-quote">"Stop googling recipes.<br />Start cooking with <br /><strong>what you already have.</strong>"</p>
+          <p className="big-quote">"Stop googling recipes.<br />Start cooking with<br /><strong>what you already have.</strong>"</p>
         </div>
       </section>
 
