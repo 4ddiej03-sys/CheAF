@@ -70,6 +70,16 @@ export default function AuthScreen({ onAuth }) {
           {error   && <div style={{ background: "#2d0000", border: "1px solid #c53030", borderRadius: 10, padding: "10px 14px", marginBottom: 14 }}><p style={{ color: "#fc8181", fontSize: 13, margin: 0 }}>⚠️ {error}</p></div>}
           {success && <div style={{ background: "#002d0f", border: "1px solid #276749", borderRadius: 10, padding: "10px 14px", marginBottom: 14 }}><p style={{ color: "#9ae6b4", fontSize: 13, margin: 0 }}>{success}</p></div>}
 
+          {mode === "signup" && (
+  <p style={{ fontSize: 11, color: "#a0aec0", textAlign: "center", marginBottom: 8 }}>
+    By signing up you agree to our{" "}
+    <a href="#" onClick={e => { e.preventDefault(); window.dispatchEvent(new CustomEvent("showTerms")); }}
+      style={{ color: "#c4622d" }}>Terms of Service</a>{" "}and{" "}
+    <a href="#" onClick={e => { e.preventDefault(); window.dispatchEvent(new CustomEvent("showPrivacy")); }}
+      style={{ color: "#c4622d" }}>Privacy Policy</a>
+  </p>
+)}
+
           <button type="button" onClick={handleSubmit} disabled={loading}
             style={{ width: "100%", padding: 14, borderRadius: 12, border: "none", background: loading ? "#744210" : "#c4622d", color: "#fff", fontWeight: 700, fontSize: 16, cursor: loading ? "not-allowed" : "pointer" }}>
             {loading ? "Please wait…" : mode === "signin" ? "Sign In →" : "Create Account →"}
