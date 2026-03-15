@@ -369,6 +369,7 @@ export default function LandingPage({ onGetStarted }) {
           <button className="legal-link" onClick={() => setShowTerms(true)}>Terms of Service</button>
           <button className="legal-link" onClick={() => setShowPrivacy(true)}>Privacy Policy</button>
           <a href="mailto:support@che-af.vercel.app" className="legal-link" style={{ textDecoration: "underline" }}>Contact</a>
+          <a href="https://www.instagram.com/cheaf_cooklikeyouknow" target="_blank" rel="noopener noreferrer" className="legal-link" style={{ textDecoration: "underline", color: "#c4622d" }}>📸 Instagram</a>
         </div>
         <p className="body-font" style={{ fontSize: 12, color: "rgba(245,240,232,0.2)" }}>
           © 2026 Che AF · Cook Like You Know · Registered in New Zealand
