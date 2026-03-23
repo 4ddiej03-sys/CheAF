@@ -28,6 +28,7 @@ const DEFAULT_SETTINGS = {
   largeText:    false,
   highContrast: false,
   darkMode:     false,
+  language:     "en",
 };
 
 export default function App() {
