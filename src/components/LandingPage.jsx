@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import TermsPage from "./TermsPage";
 import PrivacyPage from "./PrivacyPage";
 
-// Pioneer offer expires April 13 2026 OR 200 users — whichever first
+// Pioneer offer expires April 13 2026 OR 30 users — whichever first
 const EXPIRY_DATE = new Date("2026-04-13T23:59:59");
 
 const FEATURES = [
@@ -158,7 +158,7 @@ export default function LandingPage({ onGetStarted }) {
       {/* Top announcement bar */}
       <div className="pioneer-bar">
         <p className="body-font" style={{ fontSize: 13, color: "#fff", fontWeight: 500 }}>
-          🌟 First 200 users get <strong>Pro FREE forever</strong> + Pioneer badge — <strong>limited spots left</strong>
+          🌟 First 30 users get <strong>Pro FREE forever</strong> + Pioneer badge — <strong>limited spots left</strong>
         </p>
       </div>
 
@@ -217,7 +217,7 @@ export default function LandingPage({ onGetStarted }) {
         </div>
         <p className={`body-font hero-fade-in delay-4 ${visible ? "visible" : ""}`}
           style={{ marginTop: 20, fontSize: 13, color: "rgba(245,240,232,0.35)" }}>
-          No credit card · Free forever for first 200 users · Works on any device
+          No credit card · Free forever for first 30 users · Works on any device
         </p>
 
         {/* Pioneer circle — hidden on mobile */}
@@ -237,7 +237,7 @@ export default function LandingPage({ onGetStarted }) {
       {/* Big quote */}
       <section style={{ padding: "60px 24px", borderTop: "1px solid rgba(245,240,232,0.06)", borderBottom: "1px solid rgba(245,240,232,0.06)", position: "relative", zIndex: 1 }}>
         <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
-          <p className="big-quote">"Stop googling recipes.<br />Start cooking with<br /><strong>what you already have.</strong>"</p>
+          <p className="big-quote">"Stop googling recipes.<br />Start cooking with <strong>what you already have.</strong>"</p>
         </div>
       </section>
 
@@ -329,7 +329,7 @@ export default function LandingPage({ onGetStarted }) {
               <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 40, fontWeight: 900, color: "#f5f0e8", marginBottom: 4 }}>
                 $2.99<span style={{ fontSize: 16, fontWeight: 400 }}>/mo</span>
               </p>
-              <p className="body-font" style={{ fontSize: 13, color: "#c4622d", marginBottom: 24, fontWeight: 500 }}>FREE for first 200 users</p>
+              <p className="body-font" style={{ fontSize: 13, color: "#c4622d", marginBottom: 24, fontWeight: 500 }}>FREE for first 30 users</p>
               {["Unlimited AI recipes", "Fridge photo scan", "Weekly meal planner", "Cloud sync", "Voice navigation", "Priority support"].map((f, i) => (
                 <div key={i} className="body-font" style={{ fontSize: 14, color: "rgba(245,240,232,0.8)", marginBottom: 10 }}>✓ {f}</div>
               ))}
@@ -345,7 +345,7 @@ export default function LandingPage({ onGetStarted }) {
             Cook like<br /><em style={{ color: "#c4622d", fontStyle: "italic" }}>you know.</em>
           </h2>
           <p className="body-font" style={{ fontSize: 16, color: "rgba(245,240,232,0.5)", marginBottom: 40, lineHeight: 1.7 }}>
-            Join the first 200 users and lock in Pro free forever.<br />
+            Join the first 30 users and lock in Pro free forever.<br />
             No credit card. No commitment. Just great food.
           </p>
           <button className="cta-btn cta-btn-lg" onClick={onGetStarted} style={{ fontSize: 18, padding: "20px 56px" }}>
@@ -369,7 +369,6 @@ export default function LandingPage({ onGetStarted }) {
           <button className="legal-link" onClick={() => setShowTerms(true)}>Terms of Service</button>
           <button className="legal-link" onClick={() => setShowPrivacy(true)}>Privacy Policy</button>
           <a href="mailto:support@che-af.vercel.app" className="legal-link" style={{ textDecoration: "underline" }}>Contact</a>
-          <a href="https://www.instagram.com/cheaf_cooklikeyouknow" target="_blank" rel="noopener noreferrer" className="legal-link" style={{ textDecoration: "underline", color: "#c4622d" }}>📸 Instagram</a>
         </div>
         <p className="body-font" style={{ fontSize: 12, color: "rgba(245,240,232,0.2)" }}>
           © 2026 Che AF · Cook Like You Know · Registered in New Zealand
