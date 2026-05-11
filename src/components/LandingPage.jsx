@@ -4,7 +4,7 @@ import TermsPage from "./TermsPage";
 import PrivacyPage from "./PrivacyPage";
 
 // Pioneer offer expires April 13 2026 OR 30 users — whichever first
-const EXPIRY_DATE = new Date("2026-04-13T23:59:59");
+const EXPIRY_DATE = new Date("2026-05-18T23:59:59");
 
 const FEATURES = [
   { icon: "📸", title: "Scan Your Fridge", desc: "Point your camera at your fridge. AI identifies every ingredient and generates recipes instantly." },
@@ -158,7 +158,7 @@ export default function LandingPage({ onGetStarted }) {
       {/* Top announcement bar */}
       <div className="pioneer-bar">
         <p className="body-font" style={{ fontSize: 13, color: "#fff", fontWeight: 500 }}>
-          🌟 First 30 users get <strong>Pro FREE forever</strong> + Pioneer badge — <strong>limited spots left</strong>
+          🔥 Only <strong>8 spots left</strong> — Pioneer offer closes in
         </p>
       </div>
 
@@ -217,7 +217,7 @@ export default function LandingPage({ onGetStarted }) {
         </div>
         <p className={`body-font hero-fade-in delay-4 ${visible ? "visible" : ""}`}
           style={{ marginTop: 20, fontSize: 13, color: "rgba(245,240,232,0.35)" }}>
-          No credit card · Free forever for first 30 users · Works on any device
+          No credit card · 8 spots remaining · Offer closes May 18
         </p>
 
         {/* Pioneer circle — hidden on mobile */}
@@ -329,7 +329,7 @@ export default function LandingPage({ onGetStarted }) {
               <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 40, fontWeight: 900, color: "#f5f0e8", marginBottom: 4 }}>
                 $2.99<span style={{ fontSize: 16, fontWeight: 400 }}>/mo</span>
               </p>
-              <p className="body-font" style={{ fontSize: 13, color: "#c4622d", marginBottom: 24, fontWeight: 500 }}>FREE for first 30 users</p>
+              <p className="body-font" style={{ fontSize: 13, color: "#c4622d", marginBottom: 24, fontWeight: 500 }}>🔥 Only 8 Pioneer spots left</p>
               {["Unlimited AI recipes", "Fridge photo scan", "Weekly meal planner", "Cloud sync", "Voice navigation", "Priority support"].map((f, i) => (
                 <div key={i} className="body-font" style={{ fontSize: 14, color: "rgba(245,240,232,0.8)", marginBottom: 10 }}>✓ {f}</div>
               ))}
@@ -345,7 +345,7 @@ export default function LandingPage({ onGetStarted }) {
             Cook like<br /><em style={{ color: "#c4622d", fontStyle: "italic" }}>you know.</em>
           </h2>
           <p className="body-font" style={{ fontSize: 16, color: "rgba(245,240,232,0.5)", marginBottom: 40, lineHeight: 1.7 }}>
-            Join the first 30 users and lock in Pro free forever.<br />
+            Only 8 spots remain. After that, Pro is $2.99 NZD/month.<br />
             No credit card. No commitment. Just great food.
           </p>
           <button className="cta-btn cta-btn-lg" onClick={onGetStarted} style={{ fontSize: 18, padding: "20px 56px" }}>
