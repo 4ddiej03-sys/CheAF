@@ -322,14 +322,12 @@ export default function LandingPage({ onGetStarted }) {
               ))}
             </div>
             <div style={{ padding: 36, background: "rgba(196,98,45,0.08)", border: "1px solid rgba(196,98,45,0.3)", textAlign: "left", position: "relative" }}>
-              <div style={{ position: "absolute", top: -1, right: 20, background: "#c4622d", padding: "4px 12px", fontSize: 11, fontWeight: 700, fontFamily: "'DM Sans', sans-serif" }}>
-                🌟 PIONEER OFFER
-              </div>
+              
               <p className="body-font" style={{ fontSize: 12, letterSpacing: 2, textTransform: "uppercase", color: "#c4622d", marginBottom: 12 }}>Pro</p>
               <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 40, fontWeight: 900, color: "#f5f0e8", marginBottom: 4 }}>
                 $2.99<span style={{ fontSize: 16, fontWeight: 400 }}>/mo</span>
               </p>
-              <p className="body-font" style={{ fontSize: 13, color: "#c4622d", marginBottom: 24, fontWeight: 500 }}>🔥 Only 8 Pioneer spots left</p>
+              <p className="body-font" style={{ fontSize: 13, color: "#c4622d", marginBottom: 24, fontWeight: 500 }}></p>
               {["Unlimited AI recipes", "Fridge photo scan", "Weekly meal planner", "Cloud sync", "Voice navigation", "Priority support"].map((f, i) => (
                 <div key={i} className="body-font" style={{ fontSize: 14, color: "rgba(245,240,232,0.8)", marginBottom: 10 }}>✓ {f}</div>
               ))}
@@ -345,8 +343,8 @@ export default function LandingPage({ onGetStarted }) {
             Cook like<br /><em style={{ color: "#c4622d", fontStyle: "italic" }}>you know.</em>
           </h2>
           <p className="body-font" style={{ fontSize: 16, color: "rgba(245,240,232,0.5)", marginBottom: 40, lineHeight: 1.7 }}>
-            Only 8 spots remain. After that, Pro is $2.99 NZD/month.<br />
-            No credit card. No commitment. Just great food.
+            Enjoy the limited AI for FREE or PRO for $2.99 NZD/month.<br />
+            No commitment. Just great food.
           </p>
           <button className="cta-btn cta-btn-lg" onClick={onGetStarted} style={{ fontSize: 18, padding: "20px 56px" }}>
             🍳 Get Started — It's Free
