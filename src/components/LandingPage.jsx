@@ -156,11 +156,7 @@ export default function LandingPage({ onGetStarted }) {
       `}</style>
 
       {/* Top announcement bar */}
-      <div className="pioneer-bar">
-        <p className="body-font" style={{ fontSize: 13, color: "#fff", fontWeight: 500 }}>
-          🔥 Only <strong>8 spots left</strong> — Pioneer offer closes in
-        </p>
-      </div>
+      
 
       {/* Nav */}
       <nav className={`nav-fixed ${scrolled ? "nav-scrolled" : ""}`}>
@@ -186,24 +182,7 @@ export default function LandingPage({ onGetStarted }) {
         <div className="divider-line" style={{ margin: "32px 0" }} />
 
         {/* Countdown */}
-        <div className={`hero-fade-in delay-2 ${visible ? "visible" : ""}`}>
-          <p className="body-font" style={{ fontSize: 13, color: "#c4622d", fontWeight: 500, marginBottom: 12, letterSpacing: 1, textTransform: "uppercase" }}>
-            🌟 Pioneer offer expires in
-          </p>
-          <div className="countdown-box">
-            {[
-              { val: countdown.days,  label: "Days" },
-              { val: countdown.hours, label: "Hours" },
-              { val: countdown.mins,  label: "Mins" },
-              { val: countdown.secs,  label: "Secs" },
-            ].map((u, i) => (
-              <div key={i} className="countdown-unit">
-                <span className="countdown-num">{String(u.val).padStart(2, "0")}</span>
-                <span className="countdown-label">{u.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        
 
         <p className={`body-font hero-fade-in delay-2 ${visible ? "visible" : ""}`}
           style={{ fontSize: 18, color: "rgba(245,240,232,0.65)", lineHeight: 1.7, maxWidth: 520, marginBottom: 40 }}>
@@ -217,21 +196,11 @@ export default function LandingPage({ onGetStarted }) {
         </div>
         <p className={`body-font hero-fade-in delay-4 ${visible ? "visible" : ""}`}
           style={{ marginTop: 20, fontSize: 13, color: "rgba(245,240,232,0.35)" }}>
-          No credit card · 8 spots remaining · Offer closes May 18
+          No credit card · Works on any device
         </p>
 
         {/* Pioneer circle — hidden on mobile */}
-        <div className="pioneer-circle" style={{
-          position: "absolute", top: 180, right: 0, width: 140, height: 140,
-          borderRadius: "50%", border: "1px solid rgba(196,98,45,0.3)",
-          flexDirection: "column", alignItems: "center", justifyContent: "center",
-          textAlign: "center", background: "rgba(196,98,45,0.06)", backdropFilter: "blur(8px)",
-        }}>
-          <span style={{ fontSize: 28 }}>🌟</span>
-          <span className="body-font" style={{ fontSize: 11, color: "#c4622d", fontWeight: 500, marginTop: 4, lineHeight: 1.3 }}>
-            Pioneer<br />Member<br />Perks
-          </span>
-        </div>
+        
       </section>
 
       {/* Big quote */}
@@ -325,7 +294,8 @@ export default function LandingPage({ onGetStarted }) {
               
               <p className="body-font" style={{ fontSize: 12, letterSpacing: 2, textTransform: "uppercase", color: "#c4622d", marginBottom: 12 }}>Pro</p>
               <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 40, fontWeight: 900, color: "#f5f0e8", marginBottom: 4 }}>
-                $2.99<span style={{ fontSize: 16, fontWeight: 400 }}>/mo</span>
+                $2.99<span style={{ fontSize: 16, fontWeight: 400 }}></span>
+              <p className="body-font" style={{ fontSize: 13, color: "rgba(245,240,232,0.4)", marginBottom: 24 }}>NZD/month</p>  
               </p>
               <p className="body-font" style={{ fontSize: 13, color: "#c4622d", marginBottom: 24, fontWeight: 500 }}></p>
               {["Unlimited AI recipes", "Fridge photo scan", "Weekly meal planner", "Cloud sync", "Voice navigation", "Priority support"].map((f, i) => (
