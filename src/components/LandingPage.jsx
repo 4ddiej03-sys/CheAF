@@ -42,18 +42,13 @@ function useCountdown(target) {
 }
 
 export default function LandingPage({ onGetStarted }) {
-  const [scrolled, setScrolled]   = useState(false);
+ 
   const [visible, setVisible]     = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const countdown = useCountdown(EXPIRY_DATE);
 
-  useEffect(() => {
-    setTimeout(() => setVisible(true), 100);
-    const handleScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+ 
 
   if (showTerms)   return <TermsPage onClose={() => setShowTerms(false)} />;
   if (showPrivacy) return <PrivacyPage onClose={() => setShowPrivacy(false)} />;
@@ -159,7 +154,7 @@ export default function LandingPage({ onGetStarted }) {
       
 
       {/* Nav */}
-      <nav className={`nav-fixed ${scrolled ? "nav-scrolled" : ""}`}>
+      <nav style={{ padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(196,98,45,0.2)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <img src="/icon-192.png" alt="Che AF" style={{ width: 32, height: 32, borderRadius: 8 }} />
           <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 18, color: "#f5f0e8" }}>
@@ -172,7 +167,7 @@ export default function LandingPage({ onGetStarted }) {
       </nav>
 
       {/* Hero */}
-      <section className="hero-section" style={{ padding: "180px 24px 100px", maxWidth: 900, margin: "0 auto", position: "relative", zIndex: 1 }}>
+      <section className="hero-section" style={{ padding: "80px 24px 100px", maxWidth: 900, margin: "0 auto", position: "relative", zIndex: 1 }}>
         <div className={`hero-fade-in ${visible ? "visible" : ""}`}>
           <div className="badge-pill">Cook Like You Know</div>
         </div>
