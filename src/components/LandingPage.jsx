@@ -48,7 +48,12 @@ export default function LandingPage({ onGetStarted }) {
   const [showPrivacy, setShowPrivacy] = useState(false);
   const countdown = useCountdown(EXPIRY_DATE);
 
- 
+  useEffect(() => {
+    setTimeout(() => setVisible(true), 100);
+    const handleScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   if (showTerms)   return <TermsPage onClose={() => setShowTerms(false)} />;
   if (showPrivacy) return <PrivacyPage onClose={() => setShowPrivacy(false)} />;
