@@ -42,7 +42,7 @@ function useCountdown(target) {
 }
 
 export default function LandingPage({ onGetStarted }) {
- 
+  const [scrolled, setScrolled]   = useState(false);
   const [visible, setVisible]     = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
@@ -159,7 +159,7 @@ export default function LandingPage({ onGetStarted }) {
       
 
       {/* Nav */}
-      <nav style={{ padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(196,98,45,0.2)" }}>
+      <nav className={`nav-fixed ${scrolled ? "nav-scrolled" : ""}`}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <img src="/icon-192.png" alt="Che AF" style={{ width: 32, height: 32, borderRadius: 8 }} />
           <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 18, color: "#f5f0e8" }}>
@@ -172,7 +172,7 @@ export default function LandingPage({ onGetStarted }) {
       </nav>
 
       {/* Hero */}
-      <section className="hero-section" style={{ padding: "80px 24px 100px", maxWidth: 900, margin: "0 auto", position: "relative", zIndex: 1 }}>
+      <section className="hero-section" style={{ padding: "180px 24px 100px", maxWidth: 900, margin: "0 auto", position: "relative", zIndex: 1 }}>
         <div className={`hero-fade-in ${visible ? "visible" : ""}`}>
           <div className="badge-pill">Cook Like You Know</div>
         </div>
@@ -295,7 +295,7 @@ export default function LandingPage({ onGetStarted }) {
               <p className="body-font" style={{ fontSize: 12, letterSpacing: 2, textTransform: "uppercase", color: "#c4622d", marginBottom: 12 }}>Pro</p>
               <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 40, fontWeight: 900, color: "#f5f0e8", marginBottom: 4 }}>
                 $2.99<span style={{ fontSize: 16, fontWeight: 400 }}></span>
-              <p className="body-font" style={{ fontSize: 13, color: "rgba(245,240,232,0.4)", marginBottom: 24 }}>NZD/month</p>  
+              <p className="body-font" style={{ fontSize: 13, color: "rgba(245,240,232,0.4)", marginBottom: 24 }}>NZD</p>  
               </p>
               <p className="body-font" style={{ fontSize: 13, color: "#c4622d", marginBottom: 24, fontWeight: 500 }}></p>
               {["Unlimited AI recipes", "Fridge photo scan", "Weekly meal planner", "Cloud sync", "Voice navigation", "Priority support"].map((f, i) => (
